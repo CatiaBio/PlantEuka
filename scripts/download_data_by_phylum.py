@@ -61,7 +61,7 @@ def save_taxon_info(df, filepath="taxon_info.csv"):
 
 def main(phylum_name):
     # Create a directory for the output
-    output_dir = f"{phylum_name}_genomes"
+    output_dir = "sdata/"+f"{phylum_name}_genomes"
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
