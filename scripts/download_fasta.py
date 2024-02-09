@@ -1,15 +1,9 @@
 from Bio import Entrez, SeqIO
-import pandas as pd
 import os
 
 # Set your NCBI Entrez email here
 Entrez.email = '***REMOVED***'
 Entrez.api_key = '03d4de8e8f44ed94183a4ba257fab9752709'
-
-def read_genus_names(csv_file_path):
-    # Reads the CSV and returns a list of unique GenusNames
-    df = pd.read_csv(csv_file_path)
-    return df['GenusName'].unique().tolist()
 
 def search_genomes(genus_name, database='nuccore'):
     search_term = f"{genus_name}[Orgn] AND chloroplast[Title] AND complete genome[Title]"
@@ -39,28 +33,24 @@ def save_genome_sequences(records, directory="./"):
     for record in records:
         SeqIO.write(record, os.path.join(directory, f"{record.id}.fasta"), "fasta")
 
-def main(genus_name):
-    genus_names = read_genus_names(csv_file_path)
+def read_genus_names_from_file(file_path):
+    with open(file_path, 'r') as file:
+        return [line.strip() for line in file if line.strip()]
+
+def main(file_path):
+    genus_names = read_genus_names_from_file(file_path)
     for genus_name in genus_names:
-        # Create a directory for the output
-        output_dir = "sdata/"+f"{genus_name}_genomes"
+        output_dir = "data/"+f"{genus_name}_genomes"
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
-
-        # Step 1: Search for genomes
         print(f"Searching for genomes of {genus_name}...")
         ids = search_genomes(genus_name)
-
-        # Step 2: Fetch genome information
         print(f"Fetching genome information for {len(ids)} genomes...")
         records = fetch_genome_info(ids)
-
-        # Step 4: Save genome sequences
         print(f"Saving genome sequences and taxon information...")
         save_genome_sequences(records, directory=output_dir)
-
         print(f"Done. Data saved to {output_dir}")
-    
+
 if __name__ == "__main__":
-    csv_file_path = 'test.csv'  # Update to your actual CSV file path
-    main(csv_file_path)
+    file_path = 'data/plant_genera_taxids_names.tsv'  # Replace with your actual text file path
+    main(file_path)

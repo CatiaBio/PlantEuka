@@ -13,7 +13,7 @@ def get_plant_genera_taxids_and_names():
     taxon_ids = record['IdList']
     
     # Open a file to write the results
-    with open('plant_genera_taxids_names.tsv', 'w', newline='') as file:
+    with open('data/plant_genera_taxids_names.tsv', 'w', newline='') as file:
         writer = csv.writer(file, delimiter='\t')
         
         # Fetch detailed taxonomic information for each ID
