@@ -13,8 +13,9 @@ def get_plant_genera_taxids_and_names():
     taxon_ids = record['IdList']
     
     # Open a file to write the results
-    with open('data/plant_genera_taxids_names.tsv', 'w', newline='') as file:
+    with open('plant_genera_taxids_names.tsv', 'w', newline='') as file:
         writer = csv.writer(file, delimiter='\t')
+        writer.writerow(['TaxonID', 'GenusName'])  # Writing the header
         
         # Fetch detailed taxonomic information for each ID
         for taxon_id in taxon_ids:
@@ -23,7 +24,7 @@ def get_plant_genera_taxids_and_names():
             handle.close()
             for record in records:
                 genus_name = record.get('ScientificName')
-                writer.writerow([genus_name])  # Write each row to the file
+                writer.writerow([taxon_id, genus_name])  # Write each row to the file
     
     print("Data has been saved to plant_genera_taxids_names.tsv")
 
