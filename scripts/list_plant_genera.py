@@ -7,7 +7,7 @@ Entrez.api_key = '03d4de8e8f44ed94183a4ba257fab9752709'
 
 def get_plant_genera_taxids_and_names():
     search_term = "txid33090[Subtree] AND (genus[Rank])"
-    handle = Entrez.esearch(db="taxonomy", term=search_term, retmax=10)
+    handle = Entrez.esearch(db="taxonomy", term=search_term, retmax=1000000)
     record = Entrez.read(handle)
     handle.close()
     taxon_ids = record['IdList']
