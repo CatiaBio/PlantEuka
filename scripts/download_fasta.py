@@ -1,5 +1,6 @@
 from Bio import Entrez, SeqIO
 import os
+import gzip
 
 # Set your NCBI Entrez email here
 Entrez.email = 'catiacarmobatista@gmail.com'
@@ -25,13 +26,23 @@ def search_genomes(genus_name, database='nuccore'):
     return id_list
 
 def fetch_genome_info(id_list, database='nuccore'):
-    handle = Entrez.efetch(db=database, id=id_list, rettype="gb", retmode="text")
-    records = SeqIO.parse(handle, "gb")
+    handle = Entrez.efetch(db=database, id=id_list, rettype="fasta", retmode="text")
+    records = SeqIO.parse(handle, "fasta")
     return list(records)
 
 def save_genome_sequences(records, directory="./"):
     for record in records:
-        SeqIO.write(record, os.path.join(directory, f"{record.id}.fasta"), "fasta")
+        # Ensure the directory exists
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+
+        # Construct the file path with .fasta.gz extension
+        filepath = os.path.join(directory, f"{record.id}.fasta.gz")
+
+        # Write the FASTA file directly in gzip compressed format
+        with gzip.open(filepath, "wt") as output_handle:
+            SeqIO.write(record, output_handle, "fasta")
+
 
 def read_genus_names_from_file(file_path):
     with open(file_path, 'r') as file:
@@ -52,5 +63,7 @@ def main(file_path):
         print(f"Done. Data saved to {output_dir}")
 
 if __name__ == "__main__":
-    file_path = 'data/plant_genera_taxids_names.tsv'  # Replace with your actual text file path
+    file_path = 'data/viridiplantae_genus_list.tsv'  
+    #file_path = 'data/test_genus_list.tsv'
     main(file_path)
+
