@@ -5,7 +5,7 @@ Get the taxdump.tar.gz from NCBI entrez:
 Python - python3 scripts/download_NCBITaxa_DB.py
 
 Extract the taxdump.tar.gz into the folder data/taxdump
-Unix      - tar -zxvf taxdump.tar.gz -C data/taxdump
+Unix - tar -zxvf taxdump.tar.gz -C data/taxdump
 
 Get list of viridiplantae taxonomy with Name, Rank and Lineage
 Python - python3 scripts/viridiplantae_taxonomy_list.py
