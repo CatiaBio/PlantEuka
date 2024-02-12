@@ -7,7 +7,7 @@ Entrez.email = 'catiacarmobatista@gmail.com'
 Entrez.api_key = '03d4de8e8f44ed94183a4ba257fab9752709'
 
 def search_genomes(genus_name, database='nuccore'):
-    search_term = f"{genus_name}[Orgn] AND chloroplast[Title] AND complete genome[Title]"
+    search_term = f"{genus_name}[Orgn] AND mitochondrion[Title] AND complete genome[Title]"
     id_list = []
     
     # Initial search to get count
@@ -51,7 +51,7 @@ def read_genus_names_from_file(file_path):
 def main(file_path):
     genus_names = read_genus_names_from_file(file_path)
     for genus_name in genus_names:
-        output_dir = "data/"+f"{genus_name}_genomes"
+        output_dir = "data/mitochondrion/"+f"{genus_name}"
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
         print(f"Searching for genomes of {genus_name}...")
@@ -63,7 +63,7 @@ def main(file_path):
         print(f"Done. Data saved to {output_dir}")
 
 if __name__ == "__main__":
-    file_path = 'data/viridiplantae_genus_list.tsv'  
-    #file_path = 'data/test_genus_list.tsv'
+    #file_path = 'data/viridiplantae_genus_list.tsv'  
+    file_path = 'data/test_genus_list.tsv'
     main(file_path)
 
