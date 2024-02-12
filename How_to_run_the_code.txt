@@ -16,4 +16,7 @@ Python - python3 scripts/viridiplantae_genus_list.py
 Download all the sequences by genus from NCBI Entrez
 Python - python3 scripts/download_fasta.py
 
-Soon starting with snakemake for the pipeline 
+With snakemake:
+In the terminal in PlantEuka folder run:
+
+snakemake --cores 1 

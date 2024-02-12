@@ -1,3 +1,17 @@
+import argparse
+
+# Set up argument parsing
+parser = argparse.ArgumentParser(description='Process taxonomy files.')
+parser.add_argument('--taxonomy_file', required=True, help='Path to the viridiplantae_taxonomy.tsv file')
+parser.add_argument('--output_file', required=True, help='Path to the output file')
+
+args = parser.parse_args()
+
+# Use the arguments for file paths
+taxonomy_file = args.taxonomy_file
+output_file = args.output_file
+
+
 def extract_genus_names(input_tsv, output_txt):
     genus_names = []
 
@@ -21,6 +35,4 @@ def extract_genus_names(input_tsv, output_txt):
     print(f"Genus names have been saved to {output_txt}")
 
 # Usage
-input_tsv = 'data/viridiplantae_taxonomy_list.tsv'  # Replace with the path to your TSV file
-output_txt = 'data/viridiplantae_genus_list.tsv'  # Replace with your desired output file path
-extract_genus_names(input_tsv, output_txt)
+extract_genus_names(taxonomy_file, output_file)
