@@ -1,14 +1,23 @@
-import os
+import argparse
 
-# Paths to the taxonomy files
-nodes_file = 'taxdump/nodes.dmp'
-names_file = 'taxdump/names.dmp'
-output_file = 'viridiplantae_taxonomy.tsv'
+# Set up argument parsing
+parser = argparse.ArgumentParser(description='Process taxonomy files.')
+parser.add_argument('--nodes_file', required=True, help='Path to the nodes.dmp file')
+parser.add_argument('--names_file', required=True, help='Path to the names.dmp file')
+parser.add_argument('--output_file', required=True, help='Path to the output file')
+
+args = parser.parse_args()
+
+# Use the arguments for file paths
+nodes_file = args.nodes_file
+names_file = args.names_file
+output_file = args.output_file
 
 # Read the names and nodes
 name_dict = {}
 parent_dict = {}
 rank_dict = {}
+
 with open(names_file, 'r') as f:
     for line in f:
         split_line = line.split('|')
