@@ -5,14 +5,18 @@ scripts = {
 }
 
 rule all:
-    input: "data/viridiplantae_genus_list.tsv"
+    input: 
+        "data/viridiplantae_genus_list.tsv"
 
 rule download_taxdump:
-    output: "taxdump.tar.gz"
-    shell: "wget -O {output} https://ftp.ncbi.nih.gov/pub/taxonomy/taxdump.tar.gz"
+    output: 
+        "taxdump.tar.gz"
+    shell: 
+        "wget -O {output} https://ftp.ncbi.nih.gov/pub/taxonomy/taxdump.tar.gz"
 
 rule extract_taxdump:
-    input: "taxdump.tar.gz"
+    input: 
+        "taxdump.tar.gz"
     output: 
         nodes="data/taxdump/nodes.dmp",
         names="data/taxdump/names.dmp"
@@ -30,8 +34,10 @@ rule generate_viridiplantae_taxonomy_list:
     input:
         nodes="data/taxdump/nodes.dmp",
         names="data/taxdump/names.dmp"
-    output: "data/viridiplantae_taxonomy.tsv"
-    shell: "python {scripts[generate_taxonomy_list]} --nodes_file {input.nodes} --names_file {input.names} --output_file {output}"
+    output: 
+        "data/viridiplantae_taxonomy.tsv"
+    shell: 
+        "python {scripts[generate_taxonomy_list]} --nodes_file {input.nodes} --names_file {input.names} --output_file {output}"
 
 rule generate_viridiplantae_genus_list:
     input: 
