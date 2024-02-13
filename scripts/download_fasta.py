@@ -7,7 +7,8 @@ Entrez.email = '***REMOVED***'
 Entrez.api_key = '03d4de8e8f44ed94183a4ba257fab9752709'
 
 def search_genomes(genus_name, database='nuccore'):
-    search_term = f"{genus_name}[Orgn] AND mitochondrion[Title] AND complete genome[Title]"
+    #search_term = f"{genus_name}[Orgn]mitochondrion[Title] AND complete genome[Title] AND plants[filter]"
+    search_term = f"{genus_name}[Orgn]chloroplast[Title] AND complete genome[Title] AND plants[filter]"
     id_list = []
     
     # Initial search to get count
@@ -51,19 +52,21 @@ def read_genus_names_from_file(file_path):
 def main(file_path):
     genus_names = read_genus_names_from_file(file_path)
     for genus_name in genus_names:
-        output_dir = "data/mitochondrion/"+f"{genus_name}"
+        #output_dir = "data/mitochondrion/"+f"{genus_name}"
+        output_dir = "data/chloroplast/"+f"{genus_name}"
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
-        print(f"Searching for genomes of {genus_name}...")
+        #print(f"Searching for genomes of {genus_name}...")
         ids = search_genomes(genus_name)
-        print(f"Fetching genome information for {len(ids)} genomes...")
-        records = fetch_genome_info(ids)
-        print(f"Saving genome sequences and taxon information...")
-        save_genome_sequences(records, directory=output_dir)
-        print(f"Done. Data saved to {output_dir}")
+        if len(ids) >= 5:
+            #print(f"Fetching genome information for {len(ids)} genomes...")
+            records = fetch_genome_info(ids)
+            #print(f"Saving genome sequences and taxon information...")
+            save_genome_sequences(records, directory=output_dir)
+            #print(f"Done. Data saved to {output_dir}")
 
 if __name__ == "__main__":
-    #file_path = 'data/viridiplantae_genus_list.tsv'  
-    file_path = 'data/test_genus_list.tsv'
+    file_path = 'data/viridiplantae_genus_list.tsv'  
+    #file_path = 'data/test_genus_list.tsv'
     main(file_path)
 
