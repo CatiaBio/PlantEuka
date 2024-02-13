@@ -1,8 +1,0 @@
-name: PlantEuka_environment
-channels:
-  - conda-forge
-  - bioconda
-  - defaults
-dependencies:
-  - ete3
-  - biopython
