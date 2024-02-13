@@ -14,7 +14,7 @@ python3 scripts/viridiplantae_taxonomy_list.py
 4.Get list of viridiplantae genus
 python3 scripts/viridiplantae_genus_list.py
 
-5.Download all the sequences by genus (only if => 5 sequences per genus) from NCBI Entrez 
+5.Download all the sequences by genusfrom NCBI Entrez (only if it has 5 or more sequences per genus)
 python3 scripts/download_fasta.py
 
 -----------------------------------------------------------------------------
