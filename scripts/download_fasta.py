@@ -1,6 +1,19 @@
 from Bio import Entrez, SeqIO
 import os
 import gzip
+import argparse
+
+# Set up argument parsing
+parser = argparse.ArgumentParser(description='Download fasta files.')
+parser.add_argument('--search_str', required=True, help='Query string')
+parser.add_argument('--mapping_file', required=True, help='Path to save the mapping file')
+parser.add_argument('--output_dir', required=True, help='Path to the output directory')
+args = parser.parse_args()
+
+# Use argparse to parse command line arguments
+search_term = args.search_str
+mapping_file_path = args.mapping_file  # Updated variable name for clarity
+output_dir = args.output_dir
 
 # Set your NCBI Entrez email here
 Entrez.email = 'catiacarmobatista@gmail.com'
@@ -25,33 +38,34 @@ def fetch_genome_info(id_list, database='nuccore'):
     records = SeqIO.parse(handle, "fasta")
     return list(records)
 
-def save_genome_sequences(records, directory):
+def save_genome_sequences(records, directory, mapping_file_path):
     id_species_mapping = []
+    # Ensure the output directory exists
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    
+    # Process each record, save the FASTA file, and collect ID-species mapping
     for record in records:
-        if not os.path.exists(directory):
-            os.makedirs(directory)
         filepath = os.path.join(directory, f"{record.id}.fasta.gz")
         with gzip.open(filepath, "wt") as output_handle:
             SeqIO.write(record, output_handle, "fasta")
-        # Extract species name from the record description
-        species_name = ' '.join(record.description.split(' ')[1:3])  # Adjust as needed
+        species_name = ' '.join(record.description.split(' ')[1:3])  # Example extraction
         id_species_mapping.append((record.id, species_name))
-    # Call the function to save ID-species mapping
-    save_id_species_mapping(id_species_mapping, directory)
+    
+    # After all records are processed, save the mapping file
+    save_id_species_mapping(id_species_mapping, mapping_file_path)
 
-def save_id_species_mapping(id_species_mapping, directory):
-    filepath = os.path.join(directory, "id_species_mapping.txt")
-    with open(filepath, "w") as f:
+def save_id_species_mapping(id_species_mapping, mapping_file_path):
+    # Function to save the ID-species mapping to a file
+    with open(mapping_file_path, "w") as f:
         for id, species in id_species_mapping:
             f.write(f"{id}\t{species}\n")
 
-def main(search_term, output_dir):
+def main(search_term, output_dir, mapping_file_path):
     ids = search_genomes(search_term)
     if ids:
         records = fetch_genome_info(ids)
-        save_genome_sequences(records, output_dir)
+        save_genome_sequences(records, output_dir, mapping_file_path)
 
 if __name__ == "__main__":
-    search_term = "plants[filter] AND refseq[filter] AND chloroplast[filter] AND complete genome[Title]"
-    output_dir = "data/chloroplast"
-    main(search_term, output_dir)
+    main(search_term, output_dir, mapping_file_path)
