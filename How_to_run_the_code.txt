@@ -1,25 +1,3 @@
------------------------------------------------------------------------------
-Steps to get viridiplantae fasta sequences by genus
-
-1.Get the taxdump.tar.gz from NCBI entrez
-
-python3 scripts/download_NCBITaxa_DB.py
-
-2.Extract the taxdump.tar.gz into the folder data/taxdump
-tar -zxvf taxdump.tar.gz -C data/taxdump
-
-3.Get list of viridiplantae taxonomy with Name, Rank and Lineage
-python3 scripts/viridiplantae_taxonomy_list.py
-
-4.Get list of viridiplantae genus
-python3 scripts/viridiplantae_genus_list.py
-
-5.Download all the sequences by genusfrom NCBI Entrez (only if it has 5 or more sequences per genus)
-python3 scripts/download_fasta.py
-
------------------------------------------------------------------------------
-With snakemake
-
 In the terminal in PlantEuka folder run:
 
 snakemake --cores 1 
