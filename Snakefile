@@ -4,13 +4,14 @@ scripts = {
     "lineage": "scripts/get_lineage.py",
     "download": "scripts/download_fasta_v2.py",
     "organize": "scripts/organize_fasta.py",
-    "taxID": "scripts/get_id_taxID.py"
+    "taxID": "scripts/get_id_taxID.py",
+    "update_mapping": "scripts/update_mapping_list.py"
 }
 
 rule all:
     input: 
-        "data/chloroplast/organized",
-        "data/mitochondrion/organized"
+        "data/tmp_cp",
+        "data/tmp_mt"
 
 rule download_taxdump:
     output: temp("taxdump.tar.gz")
@@ -81,35 +82,7 @@ rule download_mitochondrion_fasta:
             --mapping_file {output.mapping} \
             --output_dir {output.directory} \
         """ 
-
-rule get_chloroplast_taxID:
-    input:
-        mapping="data/mapping_id_species_cp.txt", 
-        taxonomy="data/taxonomy.tsv"
-    output:
-        mappingtaxID="data/mapping_id_taxID_cp.txt"
-    shell: 
-        """
-        python {scripts[taxID]} \
-            --mapping_file {input.mapping} \
-            --taxonomy_file {input.taxonomy} \
-            --output_file {output.mappingtaxID}
-        """
-
-rule get_mitochondrion_taxID:
-    input:
-        mapping="data/mapping_id_species_mt.txt", 
-        taxonomy="data/taxonomy.tsv"
-    output:
-        mappingtaxID="data/mapping_id_taxID_mt.txt"
-    shell: 
-        """
-        python {scripts[taxID]} \
-            --mapping_file {input.mapping} \
-            --taxonomy_file {input.taxonomy} \
-            --output_file {output.mappingtaxID}
-        """
-        
+     
 rule organize_mitochondrion_fasta:
     input: 
         mapping="data/mapping_id_species_mt.txt",
@@ -148,6 +121,77 @@ rule organize_chloroplast_fasta:
             --output_dir {params.output_dir}
         """
 
+rule get_chloroplast_taxID:
+    input:
+        mapping="data/mapping_id_species_cp.txt", 
+        taxonomy="data/taxonomy.tsv"
+    output:
+        mappingtaxID="data/mapping_id_taxID_cp.txt"
+    shell: 
+        """
+        python {scripts[taxID]} \
+            --mapping_file {input.mapping} \
+            --taxonomy_file {input.taxonomy} \
+            --output_file {output.mappingtaxID}
+        """
 
+rule get_mitochondrion_taxID:
+    input:
+        mapping="data/mapping_id_species_mt.txt", 
+        taxonomy="data/taxonomy.tsv"
+    output:
+        mappingtaxID="data/mapping_id_taxID_mt.txt"
+    shell: 
+        """
+        python {scripts[taxID]} \
+            --mapping_file {input.mapping} \
+            --taxonomy_file {input.taxonomy} \
+            --output_file {output.mappingtaxID}
+        """
 
+rule update_mapping_list_mt: 
+    input:
+        mapping= "data/mapping_id_taxID_mt.txt",
+        folder_path = "data/mitochondrion/raw"
+    output:
+        updated_mapping = "data/combined_sequences_mt.mapping"
+    shell: 
+        """
+        python {scripts[update_mapping]} \
+            --mapping_file {input.mapping} \
+            --input_folder {input.folder_path}
+            --output_file {output.updated_mapping}
+        """
+
+rule update_mapping_list_cp: 
+    input:
+        mapping = "data/mapping_id_taxID_cp.txt",
+        folder_path = "data/chloroplast/raw"
+    output:
+        updated_mapping = "data/combined_sequences_cp.mapping"
+    shell: 
+        """
+        python {scripts[update_mapping]} \
+            --mapping_file {input.mapping} \
+            --input_folder {input.folder_path}
+            --output_file {output.updated_mapping}
+        """
+
+rule check_contaminations_mt:
+    input:
+        updated_mapping_mt = "data/combined_sequences_mt.mapping",
+        combined_sequences_mt = "data/combined_sequences_mt.fa.gz"
+    params:
+        output_dir=directory("data/tmp_mt")
+    shell: 
+        "tools/conterminator/conterminator dna {input.combined_sequences_mt} {input.updated_mapping_mt} combined_sequences_mt {output.output_dir}"
+
+rule check_contaminations_cp:
+    input:
+        updated_mapping_cp = "data/combined_sequences_cp.mapping",
+        combined_sequences_cp = "data/combined_sequences_cp.fa.gz"
+    params:
+        output_dir=directory("data/tmp_cp")
+    shell: 
+        "tools/conterminator/conterminator dna {input.combined_sequences_cp} {input.updated_mapping_cp} combined_sequences_cp {output.output_dir}"
 
