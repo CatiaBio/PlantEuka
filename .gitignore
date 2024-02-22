@@ -3,6 +3,9 @@ data/
 .snakemake/
 scripts/test_scripts/
 data_extra/
+tools/
+tmp_mt/
+tmp_cp/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
