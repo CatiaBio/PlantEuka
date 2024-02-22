@@ -4,13 +4,12 @@ scripts = {
     "lineage": "scripts/get_lineage.py",
     "download": "scripts/download_fasta_v2.py",
     "organize": "scripts/organize_fasta.py",
-    "taxID": "scripts/get_taxID.py"
+    "taxID": "scripts/get_id_taxID.py"
 }
 
-# Update the 'all' rule to reflect the actual final outputs of the workflow
 rule all:
     input: 
-        #"data/chloroplast/organized",
+        "data/chloroplast/organized",
         "data/mitochondrion/organized"
 
 rule download_taxdump:
@@ -36,7 +35,12 @@ rule generate_taxonomy:
     output: 
         "data/taxonomy.tsv"
     shell: 
-        "python {scripts[taxonomy]} --nodes_file {input.nodes} --names_file {input.names} --output_file {output}"
+        """
+        python {scripts[taxonomy]} \
+            --nodes_file {input.nodes} \
+            --names_file {input.names} \
+            --output_file {output} \
+        """
 
 rule generate_lineage:
     input: 
@@ -44,21 +48,30 @@ rule generate_lineage:
     output:
         "data/lineage.tsv"
     shell: 
-        "python {scripts[lineage]} --taxonomy_file {input} --output_file {output}"
+        """
+        python {scripts[lineage]} \
+            --taxonomy_file {input} \ 
+            --output_file {output} \
+        """
 
-# rule download_chloroplast_fasta:
-#     input: 
-#         query="plants[filter] AND refseq[filter] AND chloroplast[filter] AND complete genome[Title]"
-#     output:
-#         mapping="data/mapping_id_species_cp.txt",
-#         directory="data/chloroplast"
-#     shell: 
-#         "python {scripts[download]} --search_str '{input.query}' --mapping_file {output.mapping} --output_dir {output.directory}"
+rule download_chloroplast_fasta:
+    output:
+        mapping="data/mapping_id_species_cp.txt",
+        directory=directory("data/chloroplast/raw")  
+    params:
+        query="plants[filter] AND refseq[filter] AND chloroplast[filter] AND complete genome[Title]"
+    shell: 
+        """
+        python {scripts[download]} \
+            --search_str '{params.query}' \
+            --mapping_file {output.mapping} \
+            --output_dir {output.directory} \
+        """ 
 
 rule download_mitochondrion_fasta:
     output:
         mapping="data/mapping_id_species_mt.txt",
-        directory=directory("data/mitochondrion/raw")  # Adjusted path to avoid overlap
+        directory=directory("data/mitochondrion/raw")  
     params:
         query="plants[filter] AND refseq[filter] AND mitochondrion[filter] AND complete genome[Title]"
     shell: 
@@ -69,22 +82,12 @@ rule download_mitochondrion_fasta:
             --output_dir {output.directory} \
         """ 
 
-# rule organize_chloroplast_fasta:
-#     input: 
-#         mapping="data/mapping_id_species_cp.txt",
-#         lineage="data/lineage.tsv"
-#     output:
-#         directory="data/chloroplast/organized"
-#     shell: 
-#         "python {scripts[organize]} --lineage_file {input.lineage} --mapping_file {input.mapping} --output_dir {output.directory}"
-
-
-rule get_mitochondrion_taxID:
+rule get_chloroplast_taxID:
     input:
-        mapping="data/mapping_id_species_mt.txt", 
+        mapping="data/mapping_id_species_cp.txt", 
         taxonomy="data/taxonomy.tsv"
     output:
-        mappingtaxID="data/mapping_id_species_taxID_mt.txt"
+        mappingtaxID="data/mapping_id_taxID_cp.txt"
     shell: 
         """
         python {scripts[taxID]} \
@@ -93,16 +96,30 @@ rule get_mitochondrion_taxID:
             --output_file {output.mappingtaxID}
         """
 
+rule get_mitochondrion_taxID:
+    input:
+        mapping="data/mapping_id_species_mt.txt", 
+        taxonomy="data/taxonomy.tsv"
+    output:
+        mappingtaxID="data/mapping_id_taxID_mt.txt"
+    shell: 
+        """
+        python {scripts[taxID]} \
+            --mapping_file {input.mapping} \
+            --taxonomy_file {input.taxonomy} \
+            --output_file {output.mappingtaxID}
+        """
+        
 rule organize_mitochondrion_fasta:
     input: 
         mapping="data/mapping_id_species_mt.txt",
-        raw_directory="data/mitochondrion/raw",  # Ensure this matches the directory structure used for downloading
+        raw_directory="data/mitochondrion/raw",  
         lineage="data/lineage.tsv"
     output:
-        directory=directory("data/mitochondrion/organized")  # Using directory() to indicate the output is a directory
+        directory=directory("data/mitochondrion/organized")  
     params:
-        input_dir="data/mitochondrion/raw",  # Specify the input directory for the FASTA files
-        output_dir="data/mitochondrion/organized"  # Specify the output directory for organized FASTA files
+        input_dir="data/mitochondrion/raw",  
+        output_dir="data/mitochondrion/organized"  
     shell: 
         """
         python {scripts[organize]} \
@@ -111,5 +128,26 @@ rule organize_mitochondrion_fasta:
             --input_dir {params.input_dir} \
             --output_dir {params.output_dir}
         """
+
+rule organize_chloroplast_fasta:
+    input: 
+        mapping="data/mapping_id_species_cp.txt",
+        raw_directory="data/chloroplast/raw",  
+        lineage="data/lineage.tsv"
+    output:
+        directory=directory("data/chloroplast/organized")  
+    params:
+        input_dir="data/chloroplast/raw",  
+        output_dir="data/chloroplast/organized" 
+    shell: 
+        """
+        python {scripts[organize]} \
+            --lineage_file {input.lineage} \
+            --mapping_file {input.mapping} \
+            --input_dir {params.input_dir} \
+            --output_dir {params.output_dir}
+        """
+
+
 
 
