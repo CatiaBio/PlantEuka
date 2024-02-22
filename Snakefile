@@ -2,7 +2,7 @@
 scripts = {
     "taxonomy": "scripts/get_taxonomy.py",
     "lineage": "scripts/get_lineage.py",
-    "download": "scripts/download_fasta.py",
+    "download": "scripts/download_fasta_v2.py",
     "organize": "scripts/organize_fasta.py",
     "taxID": "scripts/get_taxID.py"
 }
@@ -13,38 +13,38 @@ rule all:
         #"data/chloroplast/organized",
         "data/mitochondrion/organized"
 
-# rule download_taxdump:
-#     output: temp("taxdump.tar.gz")
-#     shell: 
-#         "wget -O {output} https://ftp.ncbi.nih.gov/pub/taxonomy/taxdump.tar.gz"
+rule download_taxdump:
+    output: temp("taxdump.tar.gz")
+    shell: 
+        "wget -O {output} https://ftp.ncbi.nih.gov/pub/taxonomy/taxdump.tar.gz"
 
-# rule extract_taxdump:
-#     input: "taxdump.tar.gz"
-#     output: 
-#         nodes=temp("data/taxdump/nodes.dmp"),
-#         names=temp("data/taxdump/names.dmp")
-#     shell:
-#         """
-#         mkdir -p data/taxdump
-#         tar -zxvf {input} -C data/taxdump nodes.dmp names.dmp
-#         """
+rule extract_taxdump:
+    input: "taxdump.tar.gz"
+    output: 
+        nodes=temp("data/taxdump/nodes.dmp"),
+        names=temp("data/taxdump/names.dmp")
+    shell:
+        """
+        mkdir -p data/taxdump
+        tar -zxvf {input} -C data/taxdump nodes.dmp names.dmp
+        """
 
-# rule generate_taxonomy:
-#     input:
-#         nodes="data/taxdump/nodes.dmp",
-#         names="data/taxdump/names.dmp"
-#     output: 
-#         "data/taxonomy.tsv"
-#     shell: 
-#         "python {scripts[taxonomy]} --nodes_file {input.nodes} --names_file {input.names} --output_file {output}"
+rule generate_taxonomy:
+    input:
+        nodes="data/taxdump/nodes.dmp",
+        names="data/taxdump/names.dmp"
+    output: 
+        "data/taxonomy.tsv"
+    shell: 
+        "python {scripts[taxonomy]} --nodes_file {input.nodes} --names_file {input.names} --output_file {output}"
 
-# rule generate_lineage:
-#     input: 
-#         "data/taxonomy.tsv"
-#     output:
-#         "data/lineage.tsv"
-#     shell: 
-#         "python {scripts[lineage]} --taxonomy_file {input} --output_file {output}"
+rule generate_lineage:
+    input: 
+        "data/taxonomy.tsv"
+    output:
+        "data/lineage.tsv"
+    shell: 
+        "python {scripts[lineage]} --taxonomy_file {input} --output_file {output}"
 
 # rule download_chloroplast_fasta:
 #     input: 
