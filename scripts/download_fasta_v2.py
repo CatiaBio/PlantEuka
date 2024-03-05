@@ -39,25 +39,27 @@ def fetch_genome_info(id_list, database='nuccore'):
     records = SeqIO.parse(handle, "genbank")
     return list(records)
 
+def save_id_species_mapping(id_species_mapping, mapping_file_path):
+    with open(mapping_file_path, "w") as f:
+        for id, species in id_species_mapping:
+            f.write(f"{id}\t{species}\n")
+
 def save_genome_sequences(records, directory, mapping_file_path):
     id_species_mapping = []
     if not os.path.exists(directory):
         os.makedirs(directory)
     
     for record in records:
-        fasta_filepath = os.path.join(directory, f"{record.id}.fasta.gz")
-        with gzip.open(fasta_filepath, "wt") as output_handle:
-            SeqIO.write(record, output_handle, "fasta")
+        # fasta_filepath = os.path.join(directory, f"{record.id}.fasta.gz")
+        # with gzip.open(fasta_filepath, "wt") as output_handle:
+        #     SeqIO.write(record, output_handle, "fasta")
         
         species_name = record.annotations.get('organism', 'Unknown')
         id_species_mapping.append((record.id, species_name))
     
     save_id_species_mapping(id_species_mapping, mapping_file_path)
 
-def save_id_species_mapping(id_species_mapping, mapping_file_path):
-    with open(mapping_file_path, "w") as f:
-        for id, species in id_species_mapping:
-            f.write(f"{id}\t{species}\n")
+
 
 def main(search_term, output_dir, mapping_file_path):
     ids = search_genomes(search_term)

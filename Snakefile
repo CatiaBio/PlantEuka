@@ -10,8 +10,8 @@ scripts = {
 
 rule all:
     input: 
-        "data/tmp_cp",
-        "data/tmp_mt"
+        "data/combined_sequences_cp.mapping",
+        "data/combined_sequences_mt.mapping"
 
 rule download_taxdump:
     output: temp("taxdump.tar.gz")
@@ -159,7 +159,7 @@ rule update_mapping_list_mt:
         """
         python {scripts[update_mapping]} \
             --mapping_file {input.mapping} \
-            --input_folder {input.folder_path}
+            --input_folder {input.folder_path} \
             --output_file {output.updated_mapping}
         """
 
@@ -173,25 +173,25 @@ rule update_mapping_list_cp:
         """
         python {scripts[update_mapping]} \
             --mapping_file {input.mapping} \
-            --input_folder {input.folder_path}
-            --output_file {output.updated_mapping}
+            --input_folder {input.folder_path} \
+            --output_file {output.updated_mapping} 
         """
 
-rule check_contaminations_mt:
-    input:
-        updated_mapping_mt = "data/combined_sequences_mt.mapping",
-        combined_sequences_mt = "data/combined_sequences_mt.fa.gz"
-    params:
-        output_dir=directory("data/tmp_mt")
-    shell: 
-        "tools/conterminator/conterminator dna {input.combined_sequences_mt} {input.updated_mapping_mt} combined_sequences_mt {output.output_dir}"
+# rule check_contaminations_mt:
+#     input:
+#         updated_mapping_mt = "data/combined_sequences_mt.mapping",
+#         combined_sequences_mt = "data/combined_sequences_mt.fa.gz"
+#     params:
+#         output_dir=directory("data/tmp_mt")
+#     shell: 
+#         "tools/conterminator/conterminator dna {input.combined_sequences_mt} {input.updated_mapping_mt} combined_sequences_mt {output.output_dir}"
 
-rule check_contaminations_cp:
-    input:
-        updated_mapping_cp = "data/combined_sequences_cp.mapping",
-        combined_sequences_cp = "data/combined_sequences_cp.fa.gz"
-    params:
-        output_dir=directory("data/tmp_cp")
-    shell: 
-        "tools/conterminator/conterminator dna {input.combined_sequences_cp} {input.updated_mapping_cp} combined_sequences_cp {output.output_dir}"
+# rule check_contaminations_cp:
+#     input:
+#         updated_mapping_cp = "data/combined_sequences_cp.mapping",
+#         combined_sequences_cp = "data/combined_sequences_cp.fa.gz"
+#     params:
+#         output_dir=directory("data/tmp_cp")
+#     shell: 
+#         "tools/conterminator/conterminator dna {input.combined_sequences_cp} {input.updated_mapping_cp} combined_sequences_cp {output.output_dir}"
 

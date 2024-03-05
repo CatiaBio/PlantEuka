@@ -1,8 +1,12 @@
 import os
 import gzip
+import sys
 
-# Define the base directory where the organized FASTA files are located
-base_dir = 'data/mitochondrion/organized'  # Update this path to your specific directory
+if len(sys.argv) != 3:
+    print("Usage: python combine_fasta.py <input_fasta_file> <output_fasta_file>")
+    sys.exit(1)
+base_dir = sys.argv[1] # Define the base directory where the organized FASTA files are located
+output_file_path = sys.argv[2] # Path to the output file that will contain all FASTA sequences combined
 
 # Initialize a list to hold all the paths of FASTA files
 fasta_files = []
@@ -14,9 +18,6 @@ for root, dirs, files in os.walk(base_dir):
         if file.endswith('.fasta.gz'):
             # Add the full path of the file to the list
             fasta_files.append(os.path.join(root, file))
-
-# Path to the output file that will contain all FASTA sequences combined
-output_file_path = 'data/combined_sequences_mt.fa.gz'  # Update this path as needed
 
 # Combine all FASTA files into one
 with gzip.open(output_file_path, 'wb') as outfile:
