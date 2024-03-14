@@ -3,6 +3,12 @@ from collections import defaultdict
 import shutil
 import argparse
 
+"""
+    Usage for chloroplast:
+    python organize_fasta.py --lineage_file ../data/full_lineage.tsv --mapping_file ../data/mapping_id_species_cp.txt --input_dir ../data/chloroplast/raw --output_dir ../data/chloroplast/organized
+    Usage for mitochondrion:
+    python organize_fasta.py --lineage_file ../data/full_lineage.tsv --mapping_file ../data/mapping_id_species_mt.txt --input_dir ../data/mitochondrion/raw --output_dir ../data/mitochondrion/organized
+"""
 # Setup argument parsing
 parser = argparse.ArgumentParser(description='Organize sequence files per genus, family or order.')
 parser.add_argument('--lineage_file', required=True, help='Path to the lineage file')
