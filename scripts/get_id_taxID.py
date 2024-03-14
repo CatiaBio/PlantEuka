@@ -35,6 +35,5 @@ new_mapping = [(fasta_id, species_name, taxonomy_data.get(species_name, "NA")) f
 # Save the new mapping to the output file, including species names
 with open(args.output_file, 'w') as file:
     for fasta_id, species_name, taxaid in new_mapping:
-        #file.write(f"{fasta_id}\t{species_name}\t{taxaid}\n")
         file.write(f"{fasta_id}\t{taxaid}\n")
 

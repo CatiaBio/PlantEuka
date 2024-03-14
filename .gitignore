@@ -1,4 +1,5 @@
 # Folders to ignore
+genomes/
 data/
 .snakemake/
 scripts/test_scripts/
