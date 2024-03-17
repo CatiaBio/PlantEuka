@@ -1,8 +1,8 @@
 # Define paths to Python scripts
 scripts = {
-    "taxonomy": "scripts/get_taxonomy.py",
-    "lineage": "scripts/get_lineage.py",
-    "download": "scripts/download_fasta_v2.py",
+    "taxonomy": "scripts/generate_taxonomy_list.py",
+    "lineage": "scripts/generate_lineage_list.py",
+    "download": "scripts/download_genomes.py",
     "organize": "scripts/organize_fasta.py",
     "taxID": "scripts/get_id_taxID.py",
     "update_mapping": "scripts/update_mapping_list.py"
@@ -16,7 +16,7 @@ rule all:
 rule download_taxdump:
     output: temp("taxdump.tar.gz")
     shell: 
-        "wget -O {output} https://ftp.ncbi.nih.gov/pub/taxonomy/taxdump.tar.gz"
+        "wget -O {output} https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump.tar.gz"
 
 rule extract_taxdump:
     input: "taxdump.tar.gz"
@@ -25,62 +25,62 @@ rule extract_taxdump:
         names=temp("data/taxdump/names.dmp")
     shell:
         """
-        mkdir -p data/taxdump
-        tar -zxvf {input} -C data/taxdump nodes.dmp names.dmp
+        mkdir -p other
+        tar -zxvf {input} -C other nodes.dmp names.dmp
         """
 
 rule generate_taxonomy:
     input:
-        nodes="data/taxdump/nodes.dmp",
-        names="data/taxdump/names.dmp"
+        nodes="other/nodes.dmp",
+        names="othernames.dmp"
     output: 
-        "data/taxonomy.tsv"
+        "other/taxonomy.tsv"
     shell: 
         """
         python {scripts[taxonomy]} \
-            --nodes_file {input.nodes} \
-            --names_file {input.names} \
-            --output_file {output} \
+            {input.nodes} \
+            {input.names} \
+            {output} \
         """
 
 rule generate_lineage:
     input: 
-        "data/taxonomy.tsv"
+        "other/taxonomy.tsv"
     output:
-        "data/lineage.tsv"
+        "other/lineage.tsv"
     shell: 
         """
         python {scripts[lineage]} \
-            --taxonomy_file {input} \ 
-            --output_file {output} \
+            {input} \ 
+            {output} \
         """
 
-rule download_chloroplast_fasta:
+rule download_chloroplast_genomes:
     output:
-        mapping="data/mapping_id_species_cp.txt",
-        directory=directory("data/chloroplast/raw")  
+        id_species_list="genomes/chloroplast/unsigned/id_species_cp.tsv",
+        directory=directory("genomes/chloroplast/unsigned")  
     params:
         query="plants[filter] AND refseq[filter] AND chloroplast[filter] AND complete genome[Title]"
     shell: 
         """
         python {scripts[download]} \
-            --search_str '{params.query}' \
-            --mapping_file {output.mapping} \
-            --output_dir {output.directory} \
+            {params.query} \
+            {output.mapping} \
+            {output.directory} \
         """ 
 
-rule download_mitochondrion_fasta:
+rule download_mitochondrion_genomes:
     output:
-        mapping="data/mapping_id_species_mt.txt",
-        directory=directory("data/mitochondrion/raw")  
+        id_species_list="genomes/mitochondrion/unsigned/id_species_mt.tsv",
+        directory=directory("genomes/mitochondrion/unsigned")  
     params:
         query="plants[filter] AND refseq[filter] AND mitochondrion[filter] AND complete genome[Title]"
     shell: 
         """
         python {scripts[download]} \
-            --search_str '{params.query}' \
-            --mapping_file {output.mapping} \
-            --output_dir {output.directory} \
+            {params.query} \
+            {output.mapping} \
+            {output.directory} \
         """ 
      
 rule organize_mitochondrion_fasta:

@@ -1,11 +1,14 @@
-import argparse
-import csv
+#!/usr/bin/env python3
 
-# Setup argument parsing
-parser = argparse.ArgumentParser(description='Extract and organize taxonomy ranks from lineage.')
-parser.add_argument('--taxonomy_file', required=True, help='Path to the taxonomy file')
-parser.add_argument('--output_file', required=True, help='Path to save the output file')
-args = parser.parse_args()
+import csv
+import sys
+
+# Example usage: ./scripts/generate_lineage_list.py other/taxonomy.tsv other/lineage.tsv
+if len(sys.argv) != 3:
+    print("Usage: ./generate_lineage_list.py <taxonomy_file> <output_file>")
+    sys.exit(1)
+taxonomy_file = sys.argv[1]             # path for taxonomy.tsv file
+output_file = sys.argv[2]               # path for output file 
 
 # Function to process the taxonomy file and extract rank information
 def process_taxonomy_file(taxonomy_file, output_file):
@@ -45,4 +48,4 @@ def process_taxonomy_file(taxonomy_file, output_file):
     print(f"Output written to {output_file}")
 
 # Run the function with the provided arguments
-process_taxonomy_file(args.taxonomy_file, args.output_file)
+process_taxonomy_file(taxonomy_file, output_file)
