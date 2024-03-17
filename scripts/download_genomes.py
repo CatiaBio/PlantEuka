@@ -3,10 +3,13 @@
 from Bio import Entrez, SeqIO
 import os
 import sys
+import gzip
 
-# Example usage: 
-#./scripts/download_genomes.py genomes/chloroplast/unsigned/id_species_cp.tsv genomes/chloroplast/unsigned
-#./scripts/download_genomes.py genomes/mitochondrion/unsigned/id_species_mt.tsv genomes/mitochondrion/unsigned
+"""
+Example usage: 
+./scripts/download_genomes.py "plants[filter] AND refseq[filter] AND chloroplast[filter] AND complete genome[Title]" genomes/chloroplast/unsigned/id_species_cp.tsv genomes/chloroplast/unsigned
+./scripts/download_genomes.py "plants[filter] AND refseq[filter] AND mitochondrion[filter] AND complete genome[Title]" genomes/mitochondrion/unsigned/id_species_mt.tsv genomes/mitochondrion/unsigned
+"""
 
 if len(sys.argv) != 4:
     print("Usage: ./download_genomes.py <query_string> <id_specie_list> <output_file>")
@@ -50,9 +53,9 @@ def save_genome_sequences(records, directory, mapping_file_path):
         os.makedirs(directory)
     
     for record in records:
-        # fasta_filepath = os.path.join(directory, f"{record.id}.fasta.gz")
-        # with gzip.open(fasta_filepath, "wt") as output_handle:
-        #     SeqIO.write(record, output_handle, "fasta")
+        fasta_filepath = os.path.join(directory, f"{record.id}.fasta.gz")
+        with gzip.open(fasta_filepath, "wt") as output_handle:
+            SeqIO.write(record, output_handle, "fasta")
         
         species_name = record.annotations.get('organism', 'Unknown')
         id_species_mapping.append((record.id, species_name))
