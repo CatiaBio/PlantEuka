@@ -1,17 +1,14 @@
-import argparse
+#!/usr/bin/env python3
 
-# Set up argument parsing
-parser = argparse.ArgumentParser(description='Process taxonomy files.')
-parser.add_argument('--nodes_file', required=True, help='Path to the nodes.dmp file')
-parser.add_argument('--names_file', required=True, help='Path to the names.dmp file')
-parser.add_argument('--output_file', required=True, help='Path to the output file')
+import sys
 
-args = parser.parse_args()
-
-# Use the arguments for file paths
-nodes_file = args.nodes_file
-names_file = args.names_file
-output_file = args.output_file
+# Example usage: ./scripts/generate_taxonomy_list.py other/nodes.dmp other/names.dmp other/taxonomy.tsv
+if len(sys.argv) != 4:
+    print("Usage: ./generate_taxonomy_list.py <nodes_file> <names_file> <output_file>")
+    sys.exit(1)
+nodes_file = sys.argv[1]                # path for nodes.dmp file from taxdump.tar.gz
+names_file = sys.argv[2]                # path for names.dmp file from taxdump.tar.gz
+output_file = sys.argv[3]               # path for output file 
 
 # Read the names and nodes
 name_dict = {}
