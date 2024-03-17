@@ -7,15 +7,15 @@ import gzip
 
 """
 Example usage: 
-./scripts/download_genomes.py "plants[filter] AND refseq[filter] AND chloroplast[filter] AND complete genome[Title]" genomes/chloroplast/unsigned/id_species_cp.tsv genomes/chloroplast/unsigned
-./scripts/download_genomes.py "plants[filter] AND refseq[filter] AND mitochondrion[filter] AND complete genome[Title]" genomes/mitochondrion/unsigned/id_species_mt.tsv genomes/mitochondrion/unsigned
+./scripts/download_genomes.py "plants[filter] AND refseq[filter] AND chloroplast[filter] AND complete genome[Title]" genomes/chloroplast/id_species_cp.tsv genomes/chloroplast/unsorted
+./scripts/download_genomes.py "plants[filter] AND refseq[filter] AND mitochondrion[filter] AND complete genome[Title]" genomes/mitochondrion/id_species_mt.tsv genomes/mitochondrion/unsorted
 """
 
 if len(sys.argv) != 4:
     print("Usage: ./download_genomes.py <query_string> <id_specie_list> <output_file>")
     sys.exit(1)
 query = sys.argv[1]                     # search query string
-id_species = sys.argv[2]           # path for id_species file 
+id_species = sys.argv[2]                # path for id_species file 
 output_file = sys.argv[3]               # path for output file 
 
 # Set your NCBI Entrez email here

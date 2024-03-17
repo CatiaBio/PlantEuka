@@ -4,8 +4,8 @@ scripts = {
     "lineage": "scripts/generate_lineage_list.py",
     "download": "scripts/download_genomes.py",
     "organize": "scripts/organize_fasta.py",
-    "taxID": "scripts/get_id_taxID.py",
-    "update_mapping": "scripts/update_mapping_list.py"
+    "taxID": "scripts/generate_id_taxid.py",
+    "clean": "scripts/clean_genomes.sh"
 }
 
 rule all:
@@ -57,8 +57,8 @@ rule generate_lineage:
 
 rule download_chloroplast_genomes:
     output:
-        id_species_list="genomes/chloroplast/unsigned/id_species_cp.tsv",
-        directory=directory("genomes/chloroplast/unsigned")  
+        id_species_list="genomes/chloroplast/id_species_cp.tsv",
+        directory=directory("genomes/chloroplast/unsorted")  
     params:
         query="plants[filter] AND refseq[filter] AND chloroplast[filter] AND complete genome[Title]"
     shell: 
@@ -71,8 +71,8 @@ rule download_chloroplast_genomes:
 
 rule download_mitochondrion_genomes:
     output:
-        id_species_list="genomes/mitochondrion/unsigned/id_species_mt.tsv",
-        directory=directory("genomes/mitochondrion/unsigned")  
+        id_species_list="genomes/mitochondrion/id_species_mt.tsv",
+        directory=directory("genomes/mitochondrion/unsorted")  
     params:
         query="plants[filter] AND refseq[filter] AND mitochondrion[filter] AND complete genome[Title]"
     shell: 
@@ -83,98 +83,98 @@ rule download_mitochondrion_genomes:
             {output.directory} \
         """ 
      
-rule organize_mitochondrion_fasta:
+rule organize_mitochondrion_genomes:
     input: 
-        mapping="data/mapping_id_species_mt.txt",
-        raw_directory="data/mitochondrion/raw",  
-        lineage="data/lineage.tsv"
+        mapping="genomes/mitochondrion/id_species_mt.tsv",
+        raw_directory="genomes/mitochondrion/unsorted",  
+        lineage="other/lineage.tsv"
     output:
-        directory=directory("data/mitochondrion/organized")  
+        directory=directory("genomes/mitochondrion/sorted")  
     params:
-        input_dir="data/mitochondrion/raw",  
-        output_dir="data/mitochondrion/organized"  
+        input_dir="genomes/mitochondrion/unsorted",  
+        output_dir="genomes/mitochondrion/sorted"  
     shell: 
         """
         python {scripts[organize]} \
-            --lineage_file {input.lineage} \
-            --mapping_file {input.mapping} \
-            --input_dir {params.input_dir} \
-            --output_dir {params.output_dir}
+            {input.lineage} \
+            {input.mapping} \
+            {params.input_dir} \
+            {params.output_dir}
         """
 
-rule organize_chloroplast_fasta:
+rule organize_chloroplast_genomes:
     input: 
-        mapping="data/mapping_id_species_cp.txt",
-        raw_directory="data/chloroplast/raw",  
+        mapping="genomes/chloroplast/id_species_mt.tsv",
+        raw_directory="genomes/chloroplast/unsorted",  
         lineage="data/lineage.tsv"
     output:
-        directory=directory("data/chloroplast/organized")  
+        directory=directory("genomes/chloroplast/sorted")  
     params:
-        input_dir="data/chloroplast/raw",  
-        output_dir="data/chloroplast/organized" 
+        input_dir="genomes/chloroplast/unsorted",  
+        output_dir="genomes/chloroplast/sorted" 
     shell: 
         """
         python {scripts[organize]} \
-            --lineage_file {input.lineage} \
-            --mapping_file {input.mapping} \
-            --input_dir {params.input_dir} \
-            --output_dir {params.output_dir}
+            {input.lineage} \
+            {input.mapping} \
+            {params.input_dir} \
+            {params.output_dir}
         """
 
 rule get_chloroplast_taxID:
     input:
-        mapping="data/mapping_id_species_cp.txt", 
-        taxonomy="data/taxonomy.tsv"
+        mapping="genomes/chloroplast/id_species_cp.tsv", 
+        taxonomy="other/taxonomy.tsv"
     output:
-        mappingtaxID="data/mapping_id_taxID_cp.txt"
+        mappingtaxID="genomes/id_taxid_cp.txt"
     shell: 
         """
         python {scripts[taxID]} \
-            --mapping_file {input.mapping} \
-            --taxonomy_file {input.taxonomy} \
-            --output_file {output.mappingtaxID}
+            {input.mapping} \
+            {input.taxonomy} \
+            {output.mappingtaxID}
         """
 
 rule get_mitochondrion_taxID:
     input:
-        mapping="data/mapping_id_species_mt.txt", 
-        taxonomy="data/taxonomy.tsv"
+        mapping="genomes/mitochondrion/id_species_mt.tsv", 
+        taxonomy="other/taxonomy.tsv"
     output:
-        mappingtaxID="data/mapping_id_taxID_mt.txt"
+        mappingtaxID="genomes/mitochondrion/id_taxID_mt.tsv"
     shell: 
         """
         python {scripts[taxID]} \
-            --mapping_file {input.mapping} \
-            --taxonomy_file {input.taxonomy} \
-            --output_file {output.mappingtaxID}
+            {input.mapping} \
+            {input.taxonomy} \
+            {output.mappingtaxID}
         """
 
-rule update_mapping_list_mt: 
+rule clean_chloroplast_genomes: 
     input:
-        mapping= "data/mapping_id_taxID_mt.txt",
-        folder_path = "data/mitochondrion/raw"
+        genomes= "genomes/chloroplast/sorted",
     output:
-        updated_mapping = "data/combined_sequences_mt.mapping"
+        directory=directory("logs")
+    params:
+        log_clean = "logs/genome_cleanup_cp.log"
     shell: 
         """
-        python {scripts[update_mapping]} \
-            --mapping_file {input.mapping} \
-            --input_folder {input.folder_path} \
-            --output_file {output.updated_mapping}
+        ./{scripts[clean]} \
+            {input.genomes} \
+            {params.log_clean} \   
         """
 
-rule update_mapping_list_cp: 
+rule clean_mitochondrion_genomes:  
     input:
-        mapping = "data/mapping_id_taxID_cp.txt",
-        folder_path = "data/chloroplast/raw"
+        genomes= "genomes/mitochondrion/sorted/",
     output:
-        updated_mapping = "data/combined_sequences_cp.mapping"
+        directory=directory("logs")
+    params:
+        log_clean = "logs/genome_cleanup_mt.log"
     shell: 
         """
-        python {scripts[update_mapping]} \
-            --mapping_file {input.mapping} \
-            --input_folder {input.folder_path} \
-            --output_file {output.updated_mapping} 
+        ./{scripts[clean]} \
+            {input.genomes} \
+            {params.log_clean} \   
         """
 
 # rule check_contaminations_mt:
