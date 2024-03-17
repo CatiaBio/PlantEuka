@@ -5,6 +5,7 @@ other/
 reults/
 .snakemake/
 tools/
+other_scripts/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
