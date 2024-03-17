@@ -1,20 +1,19 @@
 #!/usr/bin/env python3
+
 from Bio import Entrez, SeqIO
 import os
-import gzip
-import argparse
+import sys
 
-# Set up argument parsing
-parser = argparse.ArgumentParser(description='Download fasta files.')
-parser.add_argument('--search_str', required=True, help='Query string')
-parser.add_argument('--mapping_file', required=True, help='Path to save the mapping file')
-parser.add_argument('--output_dir', required=True, help='Path to the output directory')
-args = parser.parse_args()
+# Example usage: 
+#./scripts/download_genomes.py genomes/chloroplast/unsigned/id_species_cp.tsv genomes/chloroplast/unsigned
+#./scripts/download_genomes.py genomes/mitochondrion/unsigned/id_species_mt.tsv genomes/mitochondrion/unsigned
 
-# Use argparse to parse command line arguments
-search_term = args.search_str
-mapping_file_path = args.mapping_file
-output_dir = args.output_dir
+if len(sys.argv) != 4:
+    print("Usage: ./download_genomes.py <query_string> <id_specie_list> <output_file>")
+    sys.exit(1)
+query = sys.argv[1]                     # search query string
+id_species = sys.argv[2]           # path for id_species file 
+output_file = sys.argv[3]               # path for output file 
 
 # Set your NCBI Entrez email here
 Entrez.email = 'catiacarmobatista@gmail.com'
@@ -60,8 +59,6 @@ def save_genome_sequences(records, directory, mapping_file_path):
     
     save_id_species_mapping(id_species_mapping, mapping_file_path)
 
-
-
 def main(search_term, output_dir, mapping_file_path):
     ids = search_genomes(search_term)
     if ids:
@@ -69,4 +66,4 @@ def main(search_term, output_dir, mapping_file_path):
         save_genome_sequences(records, output_dir, mapping_file_path)
 
 if __name__ == "__main__":
-    main(search_term, output_dir, mapping_file_path)
+    main(query, output_file, id_species)
