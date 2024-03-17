@@ -1,27 +1,25 @@
-import os
+#!/usr/bin/env python3
+
 from collections import defaultdict
+import os
 import shutil
-import argparse
+import sys
 
 """
     Usage for chloroplast:
-    python organize_fasta.py --lineage_file ../data/full_lineage.tsv --mapping_file ../data/mapping_id_species_cp.txt --input_dir ../data/chloroplast/raw --output_dir ../data/chloroplast/organized
+    ./scripts/organize_genomes.py other/lineage.tsv genomes/chloroplast/id_species_cp.tsv genomes/chloroplast/unsorted genomes/chloroplast/sorted
     Usage for mitochondrion:
-    python organize_fasta.py --lineage_file ../data/full_lineage.tsv --mapping_file ../data/mapping_id_species_mt.txt --input_dir ../data/mitochondrion/raw --output_dir ../data/mitochondrion/organized
+    ./scripts/organize_genomes.py other/lineage.tsv genomes/mitochondrion/id_species_mt.tsv genomes/mitochondrion/unsorted genomes/mitochondrion/sorted
 """
 # Setup argument parsing
-parser = argparse.ArgumentParser(description='Organize sequence files per genus, family or order.')
-parser.add_argument('--lineage_file', required=True, help='Path to the lineage file')
-parser.add_argument('--mapping_file', required=True, help='Path to the mapping file')
-parser.add_argument('--input_dir', required=True, help='Path to the input directory containing FASTA files')
-parser.add_argument('--output_dir', required=True, help='Path to the output directory')
-args = parser.parse_args()
+if len(sys.argv) != 5:
+    print("Usage: ./scripts/organize_genomes.py <lineage file> <id species list> <input directory> <output directory>")
+    sys.exit(1)
 
-# Adjusted file paths based on argument parsing
-lineage_file_path = args.lineage_file
-mapping_file_path = args.mapping_file
-input_directory = args.input_dir  # Changed to reflect the actual input directory for FASTA files
-output_base_dir = args.output_dir  # This will be used as the base directory for organized files
+lineage_file_path = sys.argv[1] # Path to lineage file 
+id_species_file = sys.argv[2]   # Path do id_species file  
+input_directory = sys.argv[3]   # Input directory for FASTA files
+output_base_dir = sys.argv[4]   # Base directory for organized files
 
 # Parse full lineage information
 species_to_lineage = {}
@@ -34,7 +32,7 @@ with open(lineage_file_path, 'r') as f:
 
 # Parse ID to species mapping
 id_to_species = {}
-with open(mapping_file_path, 'r') as f:
+with open(id_species_file, 'r') as f:
     for line in f:
         parts = line.strip().split('\t')
         if len(parts) == 2:
