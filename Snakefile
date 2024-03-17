@@ -3,7 +3,7 @@ scripts = {
     "taxonomy": "scripts/generate_taxonomy_list.py",
     "lineage": "scripts/generate_lineage_list.py",
     "download": "scripts/download_genomes.py",
-    "organize": "scripts/organize_fasta.py",
+    "organize": "scripts/organize_genomes.py",
     "taxID": "scripts/generate_id_taxid.py",
     "clean": "scripts/clean_genomes.sh"
 }
