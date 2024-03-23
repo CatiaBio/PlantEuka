@@ -13,6 +13,30 @@ merged_dir="$2"
 # Ensure the merged directory exists
 mkdir -p "$merged_dir"
 
+# Function to process folders and merge FASTA files
+process_folder() {
+    local folder="$1"
+    local category=$(basename "$(dirname "$folder")")
+    local sub_dir_name=$(basename "$folder")
+
+    # Skip processing for 'original_before_clean' directory
+    if [[ "$sub_dir_name" == "original_before_clean" ]]; then
+        return
+    fi
+
+    # Output file names
+    local output_file="${merged_dir}/${category}_${sub_dir_name}.fasta.gz"
+    local tsv_file="${merged_dir}/${category}_${sub_dir_name}.tsv"
+
+    # Find and merge FASTA files
+    find "$folder" -type f -name "*.fasta.gz" > /dev/null
+    if [ $? -eq 0 ]; then
+        find "$folder" -type f -name "*.fasta.gz" -print0 | xargs -0 zcat | gzip > "$output_file"
+        # Extract IDs after confirming file creation
+        zcat "$output_file" | grep "^>" | sed 's/>//g' > "$tsv_file"
+    fi
+}
+
 # Categories to process
 categories=("genus" "family" "order")
 
@@ -23,43 +47,13 @@ for category in "${categories[@]}"; do
 
     # Check if the category directory exists
     if [ -d "$category_path" ]; then
-        # Find all subdirectories in the current category
-        for sub_dir in "$category_path"/*; do
-            if [ -d "$sub_dir" ]; then
-                # Extract the name of the subdirectory
-                sub_dir_name=$(basename "$sub_dir")
-
-                # Define the output file names
-                output_file="${merged_dir}/${category}_${sub_dir_name}.fa.gz"
-                tsv_file="${merged_dir}/${category}_${sub_dir_name}.tsv"
-
-                # Initialize the TSV file
-                > "$tsv_file"
-
-                # Prepare to merge, prioritizing '_cleaned' files
-                for fasta_file in "$sub_dir"/*_cleaned.fa.gz; do
-                    # Extract ID (file name without path and extension)
-                    id=$(basename "$fasta_file" "_cleaned.fa.gz")
-                    echo -e "$id" >> "$tsv_file"
-                done
-
-                # If no '_cleaned' files found, fallback to original '.fa.gz' files
-                if [ ! -s "$tsv_file" ]; then
-                    for fasta_file in "$sub_dir"/*.fa.gz; do
-                        # Extract ID (file name without path and extension)
-                        id=$(basename "$fasta_file" .fa.gz)
-                        echo -e "$id" >> "$tsv_file"
-                    done
-                fi
-
-                # Merge and compress selected FASTA files into one
-                zcat "$sub_dir"/*_cleaned.fa.gz "$sub_dir"/*.fa.gz 2>/dev/null | gzip > "$output_file"
-
-                echo "Merged file created: $output_file"
-                echo "TSV file created: $tsv_file"
+        echo "Merging $category"
+        # Find all subdirectories within the category directory
+        for dir in "$category_path"/*/; do
+            if [ -d "$dir" ] && [[ "$(basename "$dir")" != "original_before_clean" ]]; then
+                process_folder "$dir"
             fi
         done
-    else
-        echo "Directory does not exist: $category_path"
+        echo "Done"
     fi
 done
