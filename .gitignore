@@ -6,6 +6,7 @@ reults/
 .snakemake/
 tools/
 other_scripts/
+genomes - Copy/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

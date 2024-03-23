@@ -49,7 +49,7 @@ def calculate_nucleotide_statistics(fasta_file, output_file):
 
 def process_directory(directory):
     for file in os.listdir(directory):
-        if file.endswith(".fa.gz"):
+        if file.endswith(".fasta.gz"):
             fasta_file = os.path.join(directory, file)
             output_file = os.path.join(directory, f"{file.rsplit('.fa', 1)[0]}_stats.tsv")
             calculate_nucleotide_statistics(fasta_file, output_file)
