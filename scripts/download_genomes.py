@@ -20,7 +20,7 @@ output_file = sys.argv[3]               # path for output file
 
 # Set your NCBI Entrez email here
 Entrez.email = '***REMOVED***'
-Entrez.api_key = '03d4de8e8f44ed94183a4ba257fab9752709'
+Entrez.api_key = '92573590fbfb9479ab2167a4f133ee31a408'
 
 def search_genomes(search_term, database='nuccore'):
     id_list = []
