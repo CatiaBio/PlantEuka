@@ -33,7 +33,7 @@ process_folder() {
     if [ $? -eq 0 ]; then
         find "$folder" -type f -name "*.fasta.gz" -print0 | xargs -0 zcat | gzip > "$output_file"
         # Extract IDs after confirming file creation
-        zcat "$output_file" | grep "^>" | sed 's/>//g' > "$tsv_file"
+        zcat "$output_file" | grep "^>" | sed 's/>//g' | cut -d ' ' -f 1 > "$tsv_file"
     fi
 }
 

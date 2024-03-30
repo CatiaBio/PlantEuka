@@ -1,13 +1,14 @@
 # Folders to ignore
 genomes/
+genes/
+genomes - Copy/
 logs/
 other/
-reults/
+other_scripts/
+results/
 .snakemake/
 tools/
-other_scripts/
-genomes - Copy/
-genes/
+psaA_gene_info.tsv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
