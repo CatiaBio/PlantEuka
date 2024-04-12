@@ -14,7 +14,7 @@ Arguments:
 <id and species list>: Path to the file where the mapping of genome IDs to species names will be saved (e.g., id_species_cp.tsv).
 <output folder>: Path to the directory where the downloaded genome sequences will be stored in FASTA format.
 
-Example: 
+Example usage following PlantEuka folder organization:
 ./scripts/download_genomes.py "plants[filter] AND refseq[filter] AND chloroplast[filter] AND complete genome[Title]" genomes/chloroplast/id_species_cp.tsv genomes/chloroplast/unsorted
 """
 
@@ -24,7 +24,7 @@ import os
 import sys
 import gzip
 
-# Check if the correct number of command-line arguments are provided. 
+# Check if the correct number of command-line arguments are provided
 if len(sys.argv) != 4:
     print("Usage: ./download_genomes.py <query string> <id and species list> <output directory>")
     sys.exit(1)
