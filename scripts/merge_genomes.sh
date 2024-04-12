@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Description: 
+# This script merges FASTA files within subdirectories of a base directory 
+# and generates a corresponding TSV file containing accession numbers.
+
 # Check if the correct number of arguments are passed
 if [ "$#" -ne 2 ]; then
     echo "Usage: $0 <base_directory> <merged_directory>"
