@@ -1,25 +1,43 @@
 #!/usr/bin/env python3
 
+"""
+Description:
+This script organizes genome files based on taxonomic criteria provided in the lineage file 
+and the ID to species mapping file. It reads the lineage information and the ID to species 
+mapping, then organizes the genome files into directories based on genus, family, and order 
+taxonomic levels.The directories are created only when 10 or more genomes are present, 
+ensuring a threshold for meaningful categorization.
+
+Usage:
+./scripts/organize_genomes.py <lineage file> <id and species list> <input directory> <output directory>
+
+Arguments:
+<lineage file>: Path to the lineage file containing taxonomic lineage information.
+<id and species list>: Path to the file containing the mapping of genome IDs to species names.
+<input directory>: Path to the directory containing input FASTA files.
+<output directory>: Path to the base directory where organized files will be stored.
+
+Example:
+./scripts/organize_genomes.py other/lineage.tsv genomes/chloroplast/id_species_cp.tsv genomes/chloroplast/unsorted genomes/chloroplast/sorted
+"""
+
+# Libraries
 from collections import defaultdict
 import os
 import shutil
 import sys
 
-"""
-    Usage for chloroplast:
-    ./scripts/organize_genomes.py other/lineage.tsv genomes/chloroplast/id_species_cp.tsv genomes/chloroplast/unsorted genomes/chloroplast/sorted
-    Usage for mitochondrion:
-    ./scripts/organize_genomes.py other/lineage.tsv genomes/mitochondrion/id_species_mt.tsv genomes/mitochondrion/unsorted genomes/mitochondrion/sorted
-"""
-# Setup argument parsing
+# Check if the correct number of command-line arguments are provided. 
+# If not, print the correct usage format and exit the script with an error status.
 if len(sys.argv) != 5:
-    print("Usage: ./scripts/organize_genomes.py <lineage file> <id species list> <input directory> <output directory>")
+    print("Usage: ./scripts/organize_genomes.py <lineage file> <id and species list> <input directory> <output directory>")
     sys.exit(1)
 
-lineage_file_path = sys.argv[1] # Path to lineage file 
-id_species_file = sys.argv[2]   # Path do id_species file  
-input_directory = sys.argv[3]   # Input directory for FASTA files
-output_base_dir = sys.argv[4]   # Base directory for organized files
+# Extract command-line arguments
+lineage_file_path = sys.argv[1] 
+id_species_file = sys.argv[2]   
+input_directory = sys.argv[3]   
+output_base_dir = sys.argv[4]   
 
 # Parse full lineage information
 species_to_lineage = {}
@@ -51,13 +69,34 @@ for id, species_name in id_to_species.items():
         species_by_family[family].append(id)
         species_by_order[order].append(id)
 
-# Ensure the directory exists before trying to move files into it
 def ensure_directory(dir_path):
+    """
+    Ensures that the specified directory exists. If the directory does not exist,
+    it creates the directory.
+
+    Args:
+    dir_path (str): Path to the directory to be ensured.
+
+    Returns:
+    None
+    """
     if not os.path.exists(dir_path):
         os.makedirs(dir_path)
 
-# Function to move FASTA files based on taxonomy criteria, ensuring no duplication across levels
 def move_fasta_files_if_criteria_met(species_dict, taxonomy, processed_ids):
+    """
+    Moves FASTA files based on taxonomy criteria if certain conditions are met,
+    avoiding duplication across taxonomic levels. It checks if the number of unprocessed
+    IDs for a given taxonomy level is sufficient for moving files.
+
+    Args:
+    species_dict (defaultdict): Dictionary containing species IDs organized by taxonomy.
+    taxonomy (str): Taxonomic level (e.g., genus, family, order).
+    processed_ids (set): Set containing processed IDs to prevent duplication.
+
+    Returns:
+    None
+    """
     for taxon, id_list in species_dict.items():
         unprocessed_ids = [id for id in id_list if id not in processed_ids]
         if unprocessed_ids:
