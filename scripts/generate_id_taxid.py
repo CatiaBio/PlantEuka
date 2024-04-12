@@ -1,28 +1,37 @@
 #!/usr/bin/env python3
 
-import os
-import gzip
-import argparse
+"""
+Description: 
+This script generates a mapping file from FASTA identifiers to NCBI taxonomy identifiers 
+and includes species names. It reads the ID to species mapping file and the taxonomy 
+list, then creates a new mapping file containing FASTA identifiers, species names, 
+and corresponding taxonomy identifiers.
+
+Usage:
+./generate_id_taxid.py <id species list> <taxonomy list> <output directory>
+
+Arguments:
+<id species list>: Path to the file containing the mapping of FASTA identifiers to species names.
+<taxonomy list>: Path to the taxonomy list file containing species names and taxonomy IDs.
+<output directory>: Path for the output file where the new mapping will be saved.
+
+Example usage following PlantEuka folder organization:
+./scripts/generate_id_taxid.py genomes/chloroplast/id_species_cp.tsv other/taxonomy.tsv genomes/chloroplast/id_taxid_cp.tsv 
+"""
+
+# Libraries 
 import sys
 from Bio import SeqIO
 
-"""
-    Description: 'Create a mapping file from FASTA identifiers to NCBI taxonomy identifiers and include species names.'
-    Usage for chloroplast:
-    ./scripts/generate_id_taxid.py genomes/chloroplast/id_species_cp.tsv other/taxonomy.tsv genomes/chloroplast/id_taxid_cp.tsv 
-    Usage for mitochondrion:
-    ./scripts/generate_id_taxid.py genomes/mitochondrion/id_species_mt.tsv other/taxonomy.tsv genomes/mitochondrion/id_taxid_mt.tsv 
-"""
-
-# Setup argument parsing
+# Check if the correct number of command-line arguments are provided
 if len(sys.argv) != 4:
     print("Usage: ./scripts/generate_id_taxid.py <id species list> <taxonomy list> <output directory>")
     sys.exit(1)
-    
+
+# Extract command-line arguments
 mapping_file = sys.argv[1]
 taxonomy_file = sys.argv[2]
 output_file = sys.argv[3]
-
 
 # Read the mapping file to create a dictionary mapping FASTA identifiers to species names
 mapping_data = {}
@@ -50,4 +59,3 @@ new_mapping = [(fasta_id, species_name, taxonomy_data.get(species_name, "NA")) f
 with open(output_file, 'w') as file:
     for fasta_id, species_name, taxaid in new_mapping:
         file.write(f"{fasta_id}\t{taxaid}\n")
-

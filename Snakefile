@@ -25,8 +25,8 @@ rule download_taxdump:
 rule extract_taxdump:
     input: "taxdump.tar.gz"
     output: 
-        nodes=temp("data/taxdump/nodes.dmp"),
-        names=temp("data/taxdump/names.dmp")
+        nodes=temp("other/taxdump/nodes.dmp"),
+        names=temp("other/taxdump/names.dmp")
     shell:
         """
         mkdir -p other
@@ -36,7 +36,7 @@ rule extract_taxdump:
 rule generate_taxonomy:
     input:
         nodes="other/nodes.dmp",
-        names="othernames.dmp"
+        names="other/names.dmp"
     output: 
         "other/taxonomy.tsv"
     shell: 
