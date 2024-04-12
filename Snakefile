@@ -2,10 +2,14 @@
 scripts = {
     "taxonomy": "scripts/generate_taxonomy_list.py",
     "lineage": "scripts/generate_lineage_list.py",
-    "download": "scripts/download_genomes.py",
+    "download_genomes": "scripts/download_genomes.py",
     "organize": "scripts/organize_genomes.py",
     "taxID": "scripts/generate_id_taxid.py",
-    "clean": "scripts/clean_genomes.sh"
+    "clean": "scripts/clean_genomes.py",
+    "merge": "scripts/merge_genomes.sh",
+    "gene_info": "scripts/download_gene.py",
+    "gene_rank": "scripts/match_gene_with_rank.py",
+    "gene_start": "scripts/move_gene_to_start.py"
 }
 
 rule all:
@@ -63,7 +67,7 @@ rule download_chloroplast_genomes:
         query="plants[filter] AND refseq[filter] AND chloroplast[filter] AND complete genome[Title]"
     shell: 
         """
-        python {scripts[download]} \
+        python {scripts[download_genomes]} \
             {params.query} \
             {output.mapping} \
             {output.directory} \
@@ -77,7 +81,7 @@ rule download_mitochondrion_genomes:
         query="plants[filter] AND refseq[filter] AND mitochondrion[filter] AND complete genome[Title]"
     shell: 
         """
-        python {scripts[download]} \
+        python {scripts[download_genomes]} \
             {params.query} \
             {output.mapping} \
             {output.directory} \
@@ -158,7 +162,7 @@ rule clean_chloroplast_genomes:
         log_clean = "logs/genome_cleanup_cp.log"
     shell: 
         """
-        ./{scripts[clean]} \
+        python {scripts[clean]} \
             {input.genomes} \
             {params.log_clean} \   
         """
@@ -172,26 +176,49 @@ rule clean_mitochondrion_genomes:
         log_clean = "logs/genome_cleanup_mt.log"
     shell: 
         """
-        ./{scripts[clean]} \
+        python {scripts[clean]} \
             {input.genomes} \
             {params.log_clean} \   
         """
 
-# rule check_contaminations_mt:
-#     input:
-#         updated_mapping_mt = "data/combined_sequences_mt.mapping",
-#         combined_sequences_mt = "data/combined_sequences_mt.fa.gz"
-#     params:
-#         output_dir=directory("data/tmp_mt")
-#     shell: 
-#         "tools/conterminator/conterminator dna {input.combined_sequences_mt} {input.updated_mapping_mt} combined_sequences_mt {output.output_dir}"
+rule merge_chloroplast:
+    input:
+        
+    output:
+        
+    params:
 
-# rule check_contaminations_cp:
-#     input:
-#         updated_mapping_cp = "data/combined_sequences_cp.mapping",
-#         combined_sequences_cp = "data/combined_sequences_cp.fa.gz"
-#     params:
-#         output_dir=directory("data/tmp_cp")
-#     shell: 
-#         "tools/conterminator/conterminator dna {input.combined_sequences_cp} {input.updated_mapping_cp} combined_sequences_cp {output.output_dir}"
+    shell: 
+        """
+        python {scripts[merge]} \
+            \
+             \   
+        """
 
+rule merge_mitochondrion:
+    input:
+        
+    output:
+       
+    params:
+        
+    shell: 
+        """
+        python {scripts[merge]} \
+            \
+            \   
+        """
+
+rule download_chloroplast_gene:
+    input:
+        
+    output:
+        
+    params:
+       
+    shell: 
+        """
+        python {scripts[gene_info]} \
+             \
+           \   
+        """
