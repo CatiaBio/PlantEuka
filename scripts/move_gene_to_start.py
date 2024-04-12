@@ -13,7 +13,7 @@ Arguments:
 <organelle_type>: The organelle type, e.g., chloroplast or mitochondrion.
 
 Example:
-python script_name.py rbcL chloroplast
+./scripts/move_gene_to_start.py rbcL chloroplast
 """
 
 # Libraries 
@@ -27,7 +27,7 @@ import sys
 
 # Check if the correct number of command-line arguments are provided
 if len(sys.argv) < 3:
-    print("Usage: python script_name.py <gene_name> <organelle_type>")
+    print("Usage: ./move_gene_to_start.py <gene_name> <organelle_type>")
     sys.exit(1)
 
 # Extract command-line arguments
