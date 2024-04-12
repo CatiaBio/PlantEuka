@@ -10,8 +10,9 @@ fi
 base_dir="$1"
 merged_dir="$2"
 
-# Ensure the merged directory exists
+# Ensure the merged directory and its subdirectory 'acc_numb' exist
 mkdir -p "$merged_dir"
+mkdir -p "${merged_dir}/acc_numb"  # Create 'acc_numb' subdirectory
 
 # Function to process folders and merge FASTA files
 process_folder() {
@@ -26,13 +27,14 @@ process_folder() {
 
     # Output file names
     local output_file="${merged_dir}/${category}_${sub_dir_name}.fasta.gz"
-    local tsv_file="${merged_dir}/${category}_${sub_dir_name}.tsv"
+    # Modify tsv_file path to save inside the 'acc_numb' folder
+    local tsv_file="${merged_dir}/acc_numb/${category}_${sub_dir_name}.tsv"  # Adjusted path
 
     # Find and merge FASTA files
     find "$folder" -type f -name "*.fasta.gz" > /dev/null
     if [ $? -eq 0 ]; then
         find "$folder" -type f -name "*.fasta.gz" -print0 | xargs -0 zcat | gzip > "$output_file"
-        # Extract IDs after confirming file creation
+        # Extract acc_numb after confirming file creation
         zcat "$output_file" | grep "^>" | sed 's/>//g' | cut -d ' ' -f 1 > "$tsv_file"
     fi
 }
