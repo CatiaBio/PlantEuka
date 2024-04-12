@@ -1,3 +1,22 @@
+#!/usr/bin/env python3
+
+"""
+Description:
+This script modifies gene sequences based on orientation and start position from gene info.
+The script dynamically handles different organelles and gene names as specified by the user.
+
+Usage:
+python script_name.py <gene_name> <organelle_type>
+
+Arguments:
+<gene_name>: The name of the gene to process (e.g., rbcL).
+<organelle_type>: The organelle type, e.g., chloroplast or mitochondrion.
+
+Example:
+python script_name.py rbcL chloroplast
+"""
+
+# Libraries 
 from Bio.Seq import Seq
 from Bio import SeqIO
 import csv
@@ -6,21 +25,32 @@ import glob
 import os
 import sys
 
-# Check for command-line arguments for gene name
-if len(sys.argv) < 2:
-    print("Usage: python script_name.py <gene_name>")
+# Check if the correct number of command-line arguments are provided
+if len(sys.argv) < 3:
+    print("Usage: python script_name.py <gene_name> <organelle_type>")
     sys.exit(1)
 
-gene_name = sys.argv[1]  # Gene name from command-line argument
+# Extract command-line arguments
+gene_name = sys.argv[1]  
+organelle_type = sys.argv[2]  
 
-fasta_dir_path = 'genomes/chloroplast/merged'
-tsv_dir_path = f'genomes/chloroplast/merged/{gene_name}'
-modified_dir_path = f'genomes/chloroplast/merged/modified_{gene_name}'
+# Dynamically set paths based on organelle type
+fasta_dir_path = f'genomes/{organelle_type}/merged'
+tsv_dir_path = f'genomes/{organelle_type}/merged/{gene_name}'
+modified_dir_path = f'genomes/{organelle_type}/merged/modified_{gene_name}'
 
 os.makedirs(modified_dir_path, exist_ok=True)  # Ensure the modified directory exists
 
 def load_gene_info(gene_info_path):
-    """Load start and end positions and orientation for genes from a TSV file."""
+    """
+    Load gene information from a TSV file.
+
+    Args:
+    gene_info_path (str): The file path to the gene information TSV file.
+
+    Returns:
+    dict: A dictionary with accession versions as keys and tuples of start position, end position, and orientation as values.
+    """
     gene_info = {}
     with open(gene_info_path, 'r') as csvfile:
         reader = csv.DictReader(csvfile, delimiter='\t')
@@ -33,7 +63,14 @@ def load_gene_info(gene_info_path):
     return gene_info
 
 def modify_sequences(fasta_file_path, gene_info, output_fasta_path):
-    """Modify sequences by applying reverse complement if necessary, then rotate to start at gene's position."""
+    """
+    Modify sequences by applying reverse complement and rotating to start at the gene's position.
+
+    Args:
+    fasta_file_path (str): The path to the input FASTA file.
+    gene_info (dict): A dictionary containing gene start and end positions and orientation.
+    output_fasta_path (str): The path to the output modified FASTA file.
+    """
     with gzip.open(fasta_file_path, 'rt') as file, gzip.open(output_fasta_path, 'wt') as output_file:
         for record in SeqIO.parse(file, 'fasta'):
             acc_version = record.id.split(' ')[0]  # Use the full accession number including version
@@ -47,7 +84,6 @@ def modify_sequences(fasta_file_path, gene_info, output_fasta_path):
                     start_pos, end_pos = len(record.seq) - end_pos + 1, len(record.seq) - start_pos + 1
 
                 # Now, rotate the sequence to start at the gene's start position
-                # For a reverse complemented sequence, the start and end positions have been adjusted above
                 rotated_seq = record.seq[start_pos-1:] + record.seq[:start_pos-1]
                 record.seq = rotated_seq
 

@@ -14,12 +14,15 @@ Arguments:
 <taxdump nodes file>: Path to the nodes.dmp file obtained from the NCBI Taxonomy database.
 <taxdump names file>: Path to the names.dmp file obtained from the NCBI Taxonomy database.
 <output file>: Path for the output file where the taxonomy list will be written.
+
+Example usage following PlantEuka folder organization:
+./scripts/generate_taxonomy_list.py other/taxdump/nodes.dmp other/taxdump/names.dmp other/taxonomy.tsv
 """
 
 # Libraries 
 import sys
 
-# Check if the correct number of command-line arguments are provided. 
+# Check if the correct number of command-line arguments are provided
 if len(sys.argv) != 4:
     print("Usage: ./generate_taxonomy_list.py <taxdump nodes file> <taxdump names file> <output file>")
     sys.exit(1)

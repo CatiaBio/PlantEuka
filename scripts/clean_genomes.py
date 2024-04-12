@@ -1,10 +1,49 @@
+#!/usr/bin/env python3
+
+"""
+Description:
+This script cleans FASTA files containing nucleotide sequences by replacing non-standard 
+nucleotides with 'N'. It logs the cleaning process and reports any replacements made. 
+The script organizes the cleaned files and creates a log file summarizing the cleaning 
+process.
+
+Usage:
+./clean_genomes.py <base directory> 
+
+Arguments:
+<base directory>: The base directory containing subdirectories with FASTA files to clean.
+
+Example usage following PlantEuka folder organization:
+./scripts/clean_genomes.py genomes/chloroplast 
+"""
+
+# Libraries 
 import gzip
 import os
 from datetime import datetime
 import sys
 from collections import Counter
 
+# Check if the correct number of command-line arguments are provided
+if len(sys.argv) != 3:
+        print("Usage: ./clean_genomes.py <base directory>")
+        sys.exit(1)
+
+# Extract command-line arguments
+base_dir = sys.argv[1]
+log_file_name = sys.argv[2]
+
 def clean_fasta(fasta_path):
+    """
+    Cleans a FASTA file containing nucleotide sequences by replacing non-standard nucleotides with 'N'.
+
+    Args:
+    fasta_path (str): The path to the input FASTA file.
+
+    Returns:
+    tuple: A tuple containing the cleaned content of the FASTA file as a string and a Counter object 
+           containing information about replaced characters.
+    """
     with gzip.open(fasta_path, 'rt') as file:
         original_content = file.read()
     replaced_characters = Counter()
@@ -20,6 +59,16 @@ def clean_fasta(fasta_path):
     return cleaned_content, replaced_characters
 
 def clean_sequence(sequence):
+    """
+    Cleans a nucleotide sequence by replacing non-standard nucleotides with 'N'.
+
+    Args:
+    sequence (str): The input nucleotide sequence.
+
+    Returns:
+    tuple: A tuple containing the cleaned sequence as a string and a Counter object 
+           containing information about replaced characters.
+    """
     replaced_characters = Counter()
     cleaned_sequence = []
     for nucleotide in sequence:
@@ -31,6 +80,15 @@ def clean_sequence(sequence):
     return ''.join(cleaned_sequence), replaced_characters
 
 def process_directory(base_dir, log_file_name):
+    """
+    Processes a directory containing FASTA files, cleans them, and logs the cleaning process.
+
+    Args:
+    base_dir (str): The base directory containing subdirectories with FASTA files to clean.
+
+    Returns:
+    None
+    """
     categories = ["genus", "family", "order"]
     start_time = datetime.now()
 
@@ -74,11 +132,4 @@ def process_directory(base_dir, log_file_name):
         log_file.write(f"All analyses completed at {datetime.now()}\n")
 
 if __name__ == "__main__":
-    if len(sys.argv) != 3:
-        print("Usage: python script.py <base_directory> <log_file_name>")
-        sys.exit(1)
-
-    base_dir = sys.argv[1]
-    log_file_name = sys.argv[2]
-
     process_directory(base_dir, log_file_name)

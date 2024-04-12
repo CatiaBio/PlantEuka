@@ -13,13 +13,16 @@ Usage:
 Arguments:
 <taxonomy file>: Path to the taxonomy file (taxonomy.tsv) obtained from the script generate_taxonomy_list.py 
 <output file>: Path for the output file (lineage.tsv) where the lineage list will be written 
+
+Example usage following PlantEuka folder organization:
+./scripts/generate_lineage_list.py other/taxonomy.tsv other/lineage.tsv
 """
 
 # Libraries 
 import csv
 import sys
 
-# Check if the correct number of command-line arguments are provided. 
+# Check if the correct number of command-line arguments are provided
 if len(sys.argv) != 3:
     print("Usage: ./generate_lineage_list.py <taxonomy file> <output file>")
     sys.exit(1)

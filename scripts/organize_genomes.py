@@ -17,7 +17,7 @@ Arguments:
 <input directory>: Path to the directory containing input FASTA files.
 <output directory>: Path to the base directory where organized files will be stored.
 
-Example:
+Example usage following PlantEuka folder organization:
 ./scripts/organize_genomes.py other/lineage.tsv genomes/chloroplast/id_species_cp.tsv genomes/chloroplast/unsorted genomes/chloroplast/sorted
 """
 
@@ -27,8 +27,7 @@ import os
 import shutil
 import sys
 
-# Check if the correct number of command-line arguments are provided. 
-# If not, print the correct usage format and exit the script with an error status.
+# Check if the correct number of command-line arguments are provided
 if len(sys.argv) != 5:
     print("Usage: ./scripts/organize_genomes.py <lineage file> <id and species list> <input directory> <output directory>")
     sys.exit(1)
