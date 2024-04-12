@@ -1,11 +1,36 @@
 #!/usr/bin/env python3
 
+"""
+Description:
+This script calculates nucleotide statistics for each .fasta.gz file in a given directory and outputs the results to TSV files.
+It processes each file to determine counts of nucleotides A, T, C, G, N, total length, and percentage content of A:T and C:G pairs.
+
+Usage:
+python fasta_folder_stats.py <input_folder>
+
+Arguments:
+<input_folder>: Directory containing .fasta.gz files to process.
+
+Example:
+./scripts/genome_statistics.py genomes/chloroplast/merged
+"""
+
+# Libraries 
 import sys
 import gzip
 import os
 from collections import Counter
 
 def parse_fasta(fasta_file):
+    """
+    Parse a FASTA file compressed with gzip.
+
+    Args:
+    fasta_file (str): Path to the gzipped FASTA file.
+
+    Yields:
+    tuple: Tuple containing the header and sequence of each entry in the FASTA file.
+    """
     header = None
     sequence = []
     with gzip.open(fasta_file, 'rt') as f:
@@ -22,6 +47,13 @@ def parse_fasta(fasta_file):
             yield header, ''.join(sequence)
 
 def calculate_nucleotide_statistics(fasta_file, output_file):
+    """
+    Calculate nucleotide statistics for sequences in a FASTA file and write the results to a TSV file.
+
+    Args:
+    fasta_file (str): Path to the gzipped FASTA file to process.
+    output_file (str): Path to the TSV output file where statistics will be saved.
+    """
     total_counts = Counter()
     num_sequences = 0
     with open(output_file, 'w') as out:
@@ -48,6 +80,12 @@ def calculate_nucleotide_statistics(fasta_file, output_file):
             out.write(f"Average\t{avg_a:.2f}\t{avg_t:.2f}\t{avg_c:.2f}\t{avg_g:.2f}\t{avg_n:.2f}\t{avg_length:.2f}\t{avg_at_content:.2f}\t{avg_cg_content:.2f}\n")
 
 def process_directory(directory):
+    """
+    Process all gzipped FASTA files in the specified directory to calculate nucleotide statistics.
+
+    Args:
+    directory (str): The directory containing gzipped FASTA files to process.
+    """
     for file in os.listdir(directory):
         if file.endswith(".fasta.gz"):
             fasta_file = os.path.join(directory, file)
