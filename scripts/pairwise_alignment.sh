@@ -4,7 +4,7 @@
 root_dir="genomes/chloroplast/sorted"
 
 # Output directory for pairwise alignments, change this to a central location if needed
-output_root_dir="genomes/chloroplast/pairwise_distances"
+output_root_dir="results/chloroplast/pairwise_distances"
 mkdir -p "$output_root_dir"
 
 gapopen=16
