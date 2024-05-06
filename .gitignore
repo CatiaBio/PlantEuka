@@ -8,7 +8,6 @@ other_scripts/
 results/
 .snakemake/
 tools/
-psaA_gene_info.tsv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
