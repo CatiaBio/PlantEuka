@@ -105,7 +105,7 @@ with open(output_file, 'w') as f:
     for tax_id in name_dict:
         # Specify the tax id to create the list for 
         selected_tax_id = 33090 # Taxon ID 33090 represents green plants
-        if is_in_lineage_of_x(tax_id, parent_dict):
+        if is_in_lineage_of_x(tax_id, parent_dict, selected_tax_id):
             lineage = get_lineage(tax_id, parent_dict,selected_tax_id)
             lineage_str = ','.join(lineage)
             rank = rank_dict.get(tax_id, 'no rank')
