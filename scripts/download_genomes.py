@@ -7,15 +7,15 @@ It retrieves genome records matching the specified search query, saves the seque
 and generates a mapping file linking genome IDs to species names.
 
 Usage:
-./download_genomes.py <query string> <id and species list> <output directory>
+python3 download_genomes.py <query_string> <mapping_file_name> <output_directory>
 
 Arguments:
-<query string>: NCBI search query string used to retrieve genome sequences matching specific criteria.
-<id and species list>: Path to the file where the mapping of genome IDs to species names will be saved (e.g., id_species_cp.tsv).
-<output folder>: Path to the directory where the downloaded genome sequences will be stored in FASTA format.
+<query_string>: NCBI search query string used to retrieve genome sequences matching specific criteria.
+<mapping_file_name>: Path to the file where the mapping of genome IDs to species names will be saved (e.g., id_species_cp.tsv).
+<output_directory> Path to the directory where the downloaded genome sequences will be stored in FASTA format.
 
 Example usage following PlantEuka folder organization:
-./scripts/download_genomes.py "plants[filter] AND refseq[filter] AND chloroplast[filter] AND complete genome[Title]" genomes/chloroplast/id_species_cp.tsv genomes/chloroplast/unsorted
+python3 scripts/download_genomes.py "plants[filter] AND refseq[filter] AND chloroplast[filter] AND complete genome[Title]" genomes/chloroplast/id_species_cp.tsv genomes/chloroplast/unsorted
 """
 
 # Libraries
@@ -26,7 +26,7 @@ import gzip
 
 # Check if the correct number of command-line arguments are provided
 if len(sys.argv) != 4:
-    print("Usage: ./download_genomes.py <query string> <id and species list> <output directory>")
+    print("Usage: python3 download_genomes.py <query_string> <mapping_file_name> <output_directory>")
     sys.exit(1)
 
 # Extract command-line arguments
@@ -34,9 +34,9 @@ query = sys.argv[1]
 id_species = sys.argv[2]                
 output_directory = sys.argv[3]               
 
-# Set your NCBI Entrez email  and API key here
-Entrez.email = '***REMOVED***'
-Entrez.api_key = '***REMOVED***'
+# Set your NCBI Entrez email and API key here
+Entrez.email = 'your_email@gmail.com' 
+Entrez.api_key = 'API_key'
 
 def search_genomes(search_term, database='nuccore'):
     """
