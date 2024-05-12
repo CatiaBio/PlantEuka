@@ -14,6 +14,7 @@ Arguments:
 <output file>: Path for the output file (lineage_with_id.tsv) where the lineage list will be written
 """
 
+# Libraries
 import csv
 import sys
 

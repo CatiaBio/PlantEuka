@@ -57,7 +57,7 @@ with open(nodes_file, 'r') as f:
         parent_dict[tax_id] = parent_tax_id
         rank_dict[tax_id] = rank
 
-# Cnstruct the full lineage for a taxon
+# Construct the full lineage for a taxon
 def get_lineage(tax_id, parent_dict):
     """
     This function aims to retrieve the complete lineage of a specified taxon 
