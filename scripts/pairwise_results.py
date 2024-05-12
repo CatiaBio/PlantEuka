@@ -6,10 +6,10 @@ import gzip
 import re
 
 # Directory containing the files
-directory = '/home/catia/Projects/PlantEuka/results/pairwise'
+directory = 'results/pairwise'
 
 # Output TSV file
-output_file = 'pairwise_results_cp.tsv'
+output_file = 'results/pairwise_results_cp.tsv'
 
 # Header for the TSV file
 header = 'Rank\tName\tpair1\tpair2\tLength\tIdentity\tSimilarity\tGaps\tScore\n'
@@ -55,6 +55,6 @@ with open(output_file, 'w') as outfile:
                         data['Score'] = line.split(':')[-1].strip()
 
                 # Write the extracted data to the TSV file
-                outfile.write(f"{rank}\t{name}\t{pair1}\t{pair2}\t{data.get('Length', 'N/A')}\t{data.get('Identity', 'N/A')}\t{data.get('Similarity', 'N/A')}\t{data.get('Gaps', 'N/A')}\t{data.get('Score', 'N/A')}\n")
-
+                outfile.write(f"{rank.capitalize()}\t{name}\t{pair1}\t{pair2}\t{data.get('Length', 'N/A')}\t{data.get('Identity', 'N/A')}\t{data.get('Similarity', 'N/A')}\t{data.get('Gaps', 'N/A')}\t{data.get('Score', 'N/A')}\n")
+                
 print("Data extraction complete.")
