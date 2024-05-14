@@ -15,7 +15,7 @@ Arguments:
 <output file>: Path for the output file (lineage.tsv) where the lineage list will be written 
 
 Example usage following PlantEuka folder organization:
-./scripts/generate_lineage_list.py other/taxonomy.tsv other/lineage.tsv
+python3 scripts/generate_lineage_list.py other/taxonomy.tsv other/lineage.tsv
 """
 
 # Libraries 
