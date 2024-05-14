@@ -1,3 +1,0 @@
-In the terminal in PlantEuka folder run:
-
-snakemake --cores 1 
