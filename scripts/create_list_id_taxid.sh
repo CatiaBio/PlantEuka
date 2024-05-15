@@ -2,8 +2,8 @@
 
 # Define the input and output files
 input_file="other/2405_all_cp_genomes.txt"
-db_file="nucl_gb.accession2taxid.gz"
-output_file="id_taxid.txt"
+db_file="NC_accession_taxid.txt"
+output_file="other/2405_id_taxid_cp.txt"
 
 # Write header to the output file
 echo -e "accession.version\ttaxid" > "$output_file"

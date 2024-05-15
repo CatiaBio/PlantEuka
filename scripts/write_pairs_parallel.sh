@@ -1,14 +1,13 @@
 #!/bin/bash
 
 # Define the directory where your list files are stored
-list_dir="$(pwd)/other/lists/test"
+list_dir="$(pwd)/other/lists/mitochondrion/combined"
 
-# Define the directories for the outputs and logs
-results_dir="$(pwd)/results/pairwise"
-logs_dir="$(pwd)/logs"
+# Define the directories for the outputs 
+results_dir="$(pwd)/results/pairwise_mt"
 
-# Ensure the list, results, and logs directories exist
-mkdir -p "$list_dir" "$results_dir" "$logs_dir" 
+# Ensure the list, results directories exist
+mkdir -p "$list_dir" "$results_dir" 
 
 if [ ! -d "$list_dir" ]; then
     echo "List directory does not exist: $list_dir"
@@ -45,11 +44,10 @@ for list_file in "${list_dir}"/*_pairs.txt; do
         pair2_name=$(basename "${line##* }" .fasta.gz)
 
         # Define output and log file names
-        output_name="${taxonomy_genus}_${taxonomy_species}_${pair1_name}_${pair2_name}.needle"
-        log_name="${taxonomy_genus}_${taxonomy_species}_${pair1_name}_${pair2_name}.log"
+        output_name="${taxonomy_genus}_${taxonomy_species}_${pair1_name}_${pair2_name}.stretcher"
         
         # Write the modified line with full paths to the results and log directories
-        echo "$pair1 $pair2 $results_dir/$output_name $logs_dir/$log_name" >&3
+        echo "$pair1 $pair2 $results_dir/$output_name" >&3
     
     done < "$list_file"
 
