@@ -13,24 +13,26 @@ Usage:
 Arguments:
 <taxdump nodes file>: Path to the nodes.dmp file obtained from the NCBI Taxonomy database.
 <taxdump names file>: Path to the names.dmp file obtained from the NCBI Taxonomy database.
+<taxonomic ID>: Taxon ID to be extracted (33090 corresponds to green plants)
 <output file>: Path for the output file where the taxonomy list will be written.
 
 Example usage following PlantEuka folder organization:
-./scripts/generate_taxonomy_list.py other/taxdump/nodes.dmp other/taxdump/names.dmp other/taxonomy.tsv
+python3 scripts/generate_taxonomy_list.py other/nodes.dmp other/names.dmp other/taxonomy.tsv
 """
 
 # Libraries 
 import sys
 
 # Check if the correct number of command-line arguments are provided
-if len(sys.argv) != 4:
-    print("Usage: ./generate_taxonomy_list.py <taxdump nodes file> <taxdump names file> <output file>")
+if len(sys.argv) != 5:
+    print("Usage: ./generate_taxonomy_list.py <taxdump nodes file> <taxdump names file> <taxonomic ID> <output file>")
     sys.exit(1)
 
 # Extract command-line arguments
 nodes_file = sys.argv[1]                
-names_file = sys.argv[2]                
-output_file = sys.argv[3]               
+names_file = sys.argv[2]
+selected_tax_id = sys.argv[3]                
+output_file = sys.argv[4]               
 
 # Create dictionaries from names and nodes file
 name_dict = {}                                   # stores scientific names of taxa
@@ -103,8 +105,6 @@ with open(output_file, 'w') as f:
     # Write header with TaxonID, Name, Rank and Lineage 
     f.write("TaxonID\tName\tRank\tLineage\n")    
     for tax_id in name_dict:
-        # Specify the tax id to create the list for 
-        selected_tax_id = 33090 # Taxon ID 33090 represents green plants
         if is_in_lineage_of_x(tax_id, parent_dict, selected_tax_id):
             lineage = get_lineage(tax_id, parent_dict,selected_tax_id)
             lineage_str = ','.join(lineage)
