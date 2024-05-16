@@ -6,13 +6,14 @@ This script calculates nucleotide statistics for each .fasta.gz file in a given 
 It processes each file to determine counts of nucleotides A, T, C, G, N, total length, and percentage content of A:T and C:G pairs.
 
 Usage:
-python fasta_folder_stats.py <input_folder>
+python fasta_folder_stats.py <input_folder> <output_folder>
 
 Arguments:
 <input_folder>: Directory containing .fasta.gz files to process.
+<output_folder>: Directory where the output TSV files will be saved.
 
 Example:
-./scripts/genome_statistics.py genomes/chloroplast/merged
+./scripts/genome_statistics.py genomes/chloroplast/merged genomes/chloroplast/stats
 """
 
 # Libraries 
@@ -20,6 +21,12 @@ import sys
 import gzip
 import os
 from collections import Counter
+
+def ensure_directory_exists(directory):
+    """Ensure the specified directory exists, and if not, create it."""
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+        print(f"Created directory: {directory}")
 
 def parse_fasta(fasta_file):
     """
@@ -68,34 +75,20 @@ def calculate_nucleotide_statistics(fasta_file, output_file):
             total_counts += counts
             num_sequences += 1
         
-        if num_sequences > 0:
-            avg_a = total_counts['A'] / num_sequences
-            avg_t = total_counts['T'] / num_sequences
-            avg_c = total_counts['C'] / num_sequences
-            avg_g = total_counts['G'] / num_sequences
-            avg_n = total_counts['N'] / num_sequences
-            avg_length = sum(total_counts.values()) / num_sequences
-            avg_at_content = ((avg_a + avg_t) / avg_length * 100) if avg_length else 0
-            avg_cg_content = ((avg_c + avg_g) / avg_length * 100) if avg_length else 0
-            out.write(f"Average\t{avg_a:.2f}\t{avg_t:.2f}\t{avg_c:.2f}\t{avg_g:.2f}\t{avg_n:.2f}\t{avg_length:.2f}\t{avg_at_content:.2f}\t{avg_cg_content:.2f}\n")
-
-def process_directory(directory):
-    """
-    Process all gzipped FASTA files in the specified directory to calculate nucleotide statistics.
-
-    Args:
-    directory (str): The directory containing gzipped FASTA files to process.
-    """
+def process_directory(directory, output):
+    """Process all .fasta.gz files in the directory to calculate statistics."""
+    ensure_directory_exists(output)  # Ensure output directory exists
     for file in os.listdir(directory):
         if file.endswith(".fasta.gz"):
             fasta_file = os.path.join(directory, file)
-            output_file = os.path.join(directory, f"{file.rsplit('.fa', 1)[0]}_stats.tsv")
+            output_file = os.path.join(output, f"{file.rsplit('.fasta.gz', 1)[0]}_stats.tsv")
             calculate_nucleotide_statistics(fasta_file, output_file)
             print(f"Processed: {fasta_file} -> {output_file}")
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Usage: python fasta_folder_stats.py <input_folder>")
+    if len(sys.argv) != 3:
+        print("Usage: python fasta_folder_stats.py <input_folder> <output_folder>")
         sys.exit(1)
     input_folder = sys.argv[1]
-    process_directory(input_folder)
+    output_folder = sys.argv[2]
+    process_directory(input_folder, output_folder)
