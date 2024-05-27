@@ -13,7 +13,7 @@ Arguments:
 <output_folder>: Directory where the output TSV files will be saved.
 
 Example:
-./scripts/genome_statistics.py genomes/chloroplast/merged genomes/chloroplast/stats
+./scripts/genome_statistics.py genomes/2405_chloroplast_merged results/2405_chloroplast
 """
 
 # Libraries 
@@ -53,25 +53,27 @@ def parse_fasta(fasta_file):
         if header:
             yield header, ''.join(sequence)
 
-def calculate_nucleotide_statistics(fasta_file, output_file):
+def calculate_nucleotide_statistics(fasta_file, output_file, taxonomy, name):
     """
     Calculate nucleotide statistics for sequences in a FASTA file and write the results to a TSV file.
 
     Args:
     fasta_file (str): Path to the gzipped FASTA file to process.
     output_file (str): Path to the TSV output file where statistics will be saved.
+    taxonomy (str): Taxonomy extracted from the filename.
+    name (str): Name extracted from the filename.
     """
     total_counts = Counter()
     num_sequences = 0
     with open(output_file, 'w') as out:
-        out.write("id\tA\tT\tC\tG\tN\tlength\tA:T %\tC:G %\n")
+        out.write("taxonomy\tname\taccession.number\tA\tT\tC\tG\tN\tlength\tA:T%\tC:G%\n")
         for header, sequence in parse_fasta(fasta_file):
             counts = Counter(sequence.upper())
             length = len(sequence)
             a, t, c, g, n = counts['A'], counts['T'], counts['C'], counts['G'], counts['N']
             at_content = ((a + t) / length * 100) if length else 0
             cg_content = ((c + g) / length * 100) if length else 0
-            out.write(f"{header}\t{a}\t{t}\t{c}\t{g}\t{n}\t{length}\t{at_content:.2f}\t{cg_content:.2f}\n")
+            out.write(f"{taxonomy}\t{name}\t{header}\t{a}\t{t}\t{c}\t{g}\t{n}\t{length}\t{at_content:.2f}\t{cg_content:.2f}\n")
             total_counts += counts
             num_sequences += 1
         
@@ -82,7 +84,9 @@ def process_directory(directory, output):
         if file.endswith(".fasta.gz"):
             fasta_file = os.path.join(directory, file)
             output_file = os.path.join(output, f"{file.rsplit('.fasta.gz', 1)[0]}_stats.tsv")
-            calculate_nucleotide_statistics(fasta_file, output_file)
+            # Extract taxonomy and name from the filename
+            taxonomy, name = file.rsplit('.', 2)[0].split('_', 1)
+            calculate_nucleotide_statistics(fasta_file, output_file, taxonomy, name)
             print(f"Processed: {fasta_file} -> {output_file}")
 
 if __name__ == "__main__":
