@@ -13,7 +13,7 @@ Arguments:
 <output_folder>: Directory where the output TSV files will be saved.
 
 Example:
-./scripts/genome_statistics.py genomes/chloroplast/merged genomes/chloroplast/stats
+./scripts/genome_statistics.py genomes/2405_chloroplast_merged results/2405_chloroplast
 """
 
 # Libraries 
