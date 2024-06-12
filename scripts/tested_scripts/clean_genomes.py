@@ -6,15 +6,6 @@ This script cleans FASTA files containing nucleotide sequences by replacing non-
 nucleotides with 'N'. It logs the cleaning process and reports any replacements made. 
 The script organizes the cleaned files and creates a log file summarizing the cleaning 
 process.
-
-Usage:
-./clean_genomes.py <base directory> 
-
-Arguments:
-<base directory>: The base directory containing subdirectories with FASTA files to clean.
-
-Example usage following PlantEuka folder organization:
-./scripts/clean_genomes.py genomes/chloroplast 
 """
 
 # Libraries 
@@ -23,15 +14,22 @@ import os
 from datetime import datetime
 import sys
 from collections import Counter
+import shutil
 
 # Check if the correct number of command-line arguments are provided
-if len(sys.argv) != 3:
-        print("Usage: ./clean_genomes.py <base directory>")
-        sys.exit(1)
+if len(sys.argv) != 2:
+    print("Usage: python3 clean_genomes.py <organelle>")
+    sys.exit(1)
 
 # Extract command-line arguments
-base_dir = sys.argv[1]
-log_file_name = sys.argv[2]
+organelle = sys.argv[1]
+base_dir = f"{organelle}/genomes/sorted"
+log_file_name = f"{organelle}/other/genome_cleanup.log"
+results_dir = "results"
+changes_log_path = os.path.join(results_dir, f"cleanup_{organelle}.tsv")
+
+# Ensure the results directory exists
+os.makedirs(results_dir, exist_ok=True)
 
 def clean_fasta(fasta_path):
     """
@@ -46,17 +44,18 @@ def clean_fasta(fasta_path):
     """
     with gzip.open(fasta_path, 'rt') as file:
         original_content = file.read()
-    replaced_characters = Counter()
-    cleaned_lines = []
-    for line in original_content.split('\n'):
-        if line.startswith('>'):
-            cleaned_lines.append(line)
-        else:
-            cleaned_line, counts = clean_sequence(line)
-            cleaned_lines.append(cleaned_line)
-            replaced_characters.update(counts)
-    cleaned_content = '\n'.join(cleaned_lines)
-    return cleaned_content, replaced_characters
+        replaced_characters = Counter()
+        cleaned_lines = []
+        for line in original_content.split('\n'):
+            if line.startswith('>'):
+                cleaned_lines.append(line)
+            else:
+                cleaned_line, counts = clean_sequence(line)
+                cleaned_lines.append(cleaned_line)
+                replaced_characters.update(counts)
+        cleaned_content = '\n'.join(cleaned_lines)
+        return cleaned_content, replaced_characters
+
 
 def clean_sequence(sequence):
     """
@@ -79,12 +78,13 @@ def clean_sequence(sequence):
             cleaned_sequence.append(nucleotide)
     return ''.join(cleaned_sequence), replaced_characters
 
+
 def process_directory(base_dir, log_file_name):
     """
     Processes a directory containing FASTA files, cleans them, and logs the cleaning process.
 
     Args:
-    base_dir (str): The base directory containing subdirectories with FASTA files to clean.
+    base_dir (str): The base directory containing FASTA files to clean.
 
     Returns:
     None
