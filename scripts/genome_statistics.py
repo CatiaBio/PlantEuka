@@ -5,15 +5,8 @@ Description:
 This script calculates nucleotide statistics for each .fasta.gz file in a given directory and outputs the results to TSV files.
 It processes each file to determine counts of nucleotides A, T, C, G, N, total length, and percentage content of A:T and C:G pairs.
 
-Usage:
-python fasta_folder_stats.py <input_folder> <output_folder>
-
-Arguments:
-<input_folder>: Directory containing .fasta.gz files to process.
-<output_folder>: Directory where the output TSV files will be saved.
-
 Example:
-./scripts/genome_statistics.py genomes/2405_chloroplast_merged results/2405_chloroplast
+python3 scripts/genome_statistics.py genomes/2405_chloroplast_merged results/2405_chloroplast
 """
 
 # Libraries 
@@ -89,10 +82,12 @@ def process_directory(directory, output):
             calculate_nucleotide_statistics(fasta_file, output_file, taxonomy, name)
             print(f"Processed: {fasta_file} -> {output_file}")
 
+
 if __name__ == "__main__":
-    if len(sys.argv) != 3:
+    if len(sys.argv) != 2:
         print("Usage: python fasta_folder_stats.py <input_folder> <output_folder>")
         sys.exit(1)
-    input_folder = sys.argv[1]
-    output_folder = sys.argv[2]
+    organelle = sys.argv[1]    
+    input_folder = f"{organelle}/genomes/merged"
+    output_folder = f"{organelle}/results/stats"
     process_directory(input_folder, output_folder)
