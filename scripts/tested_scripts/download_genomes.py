@@ -4,18 +4,12 @@
 Description:
 This script is designed to download genome sequences from the NCBI database based on a provided search query. 
 It retrieves genome records matching the specified search query, saves the sequences in FASTA format, 
-and generates a mapping file linking genome IDs to species names.
+and generates a file listing the accession numbers of the downloaded genomes.
 
 Usage:
-python3 download_genomes.py <query_string> <mapping_file_name> <output_directory>
+python3 download_genomes.py chloroplast
+python3 download_genomes.py mitochondrion
 
-Arguments:
-<query_string>: NCBI search query string used to retrieve genome sequences matching specific criteria.
-<mapping_file_name>: Path to the file where the mapping of genome IDs to species names will be saved (e.g., id_species_cp.tsv).
-<output_directory> Path to the directory where the downloaded genome sequences will be stored in FASTA format.
-
-Example usage following PlantEuka folder organization:
-python3 scripts/download_genomes.py "plants[filter] AND refseq[filter] AND chloroplast[filter] AND complete genome[Title]" genomes/chloroplast/id_species_cp.tsv genomes/chloroplast/unsorted
 """
 
 # Libraries
@@ -25,18 +19,19 @@ import sys
 import gzip
 
 # Check if the correct number of command-line arguments are provided
-if len(sys.argv) != 4:
-    print("Usage: python3 download_genomes.py <query_string> <mapping_file_name> <output_directory>")
+if len(sys.argv) != 2:
+    print("Usage: python3 download_genomes.py <organelle>")
     sys.exit(1)
 
 # Extract command-line arguments
-query = sys.argv[1]                   
-id_species = sys.argv[2]                
-output_directory = sys.argv[3]               
+organelle = sys.argv[1]
+query = f"plants[filter] AND refseq[filter] AND {organelle}[filter] AND complete genome[Title]"                 
+accession_version_file = f"{organelle}/other/accessions.txt"                
+output_directory = f"{organelle}/genomes/original"              
 
 # Set your NCBI Entrez email and API key here
-Entrez.email = 'your_email@gmail.com' 
-Entrez.api_key = 'API_key'
+Entrez.email = '***REMOVED***'
+Entrez.api_key = '***REMOVED***'
 
 def search_genomes(search_term, database='nuccore'):
     """
@@ -50,7 +45,7 @@ def search_genomes(search_term, database='nuccore'):
     list: List of IDs of genome sequences matching the search term.
     """
     id_list = []
-    handle = Entrez.esearch(db=database, term=search_term, retmax=0)
+    handle = Entrez.esearch(db=database, term=search_term, retmax=1)
     record = Entrez.read(handle)
     handle.close()
     count = int(record['Count'])
@@ -77,34 +72,37 @@ def fetch_genome_info(id_list, database='nuccore'):
     records = SeqIO.parse(handle, "genbank")
     return list(records)
 
-def save_id_species_mapping(id_species_mapping, mapping_file_path):
+def save_accession_numbers(records, mapping_file_path):
     """
-    Save the mapping of genome IDs to species names to a file.
+    Save the accession numbers to a file.
 
     Args:
-    id_species_mapping (list): List of tuples containing genome IDs and corresponding species names.
-    mapping_file_path (str): Path to the output file where the mapping will be saved.
+    records (list): List of GenBank records containing genome sequences.
+    mapping_file_path (str): Path to the output file where the accession numbers will be saved.
 
     Returns:
     None
     """
+    directory = os.path.dirname(mapping_file_path)
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+        
     with open(mapping_file_path, "w") as f:
-        for id, species in id_species_mapping:
-            f.write(f"{id}\t{species}\n")
+        for record in records:
+            f.write(f"{record.id}\n")
 
 def save_genome_sequences(records, directory, mapping_file_path):
     """
-    Save the genome sequences in FASTA format and generate a mapping of genome IDs to species names.
+    Save the genome sequences in FASTA format and generate a file with the accession numbers.
 
     Args:
     records (list): List of GenBank records containing genome sequences.
     directory (str): Directory where the FASTA files will be saved.
-    mapping_file_path (str): Path to the output file where the mapping will be saved.
+    mapping_file_path (str): Path to the output file where the accession numbers will be saved.
 
     Returns:
     None
     """
-    id_species_mapping = []
     if not os.path.exists(directory):
         os.makedirs(directory)
     
@@ -112,11 +110,8 @@ def save_genome_sequences(records, directory, mapping_file_path):
         fasta_filepath = os.path.join(directory, f"{record.id}.fasta.gz")
         with gzip.open(fasta_filepath, "wt") as output_handle:
             SeqIO.write(record, output_handle, "fasta")
-        
-        species_name = record.annotations.get('organism', 'Unknown')
-        id_species_mapping.append((record.id, species_name))
     
-    save_id_species_mapping(id_species_mapping, mapping_file_path)
+    save_accession_numbers(records, mapping_file_path)
 
 def main(search_term, output_dir, mapping_file_path):
     """
@@ -125,7 +120,7 @@ def main(search_term, output_dir, mapping_file_path):
     Args:
     search_term (str): The search term used to query NCBI GenBank.
     output_dir (str): Directory where the genome sequences will be saved.
-    mapping_file_path (str): Path to the output file where the mapping will be saved.
+    mapping_file_path (str): Path to the output file where the accession numbers will be saved.
 
     Returns:
     None
@@ -136,4 +131,4 @@ def main(search_term, output_dir, mapping_file_path):
         save_genome_sequences(records, output_dir, mapping_file_path)
 
 if __name__ == "__main__":
-    main(query, output_directory, id_species)
+    main(query, output_directory, accession_version_file)
