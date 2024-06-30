@@ -30,8 +30,8 @@ accession_version_file = f"{organelle}/other/accessions.txt"
 output_directory = f"{organelle}/genomes/original"              
 
 # Set your NCBI Entrez email and API key here
-Entrez.email = 'catiacarmobatista@gmail.com'
-Entrez.api_key = '92573590fbfb9479ab2167a4f133ee31a408'
+Entrez.email = 'youremail@gmail.com'
+Entrez.api_key = 'NCBI_API_Key'
 
 def search_genomes(search_term, database='nuccore'):
     """
