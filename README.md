@@ -8,7 +8,7 @@ The primary goal of this project is to enhance our understanding of plant biodiv
 
 ## How to Use the PlantEka
 
-Download the repository and follow the steps:
+Download the repository and follow the steps. Ensure all scripts are executed from the main directory of PlantEuka.
 
 ### download_genomes.py
 
