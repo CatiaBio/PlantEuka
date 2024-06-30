@@ -62,5 +62,4 @@ The script scans genomic sequences for non-standard characters and replaces them
 scripts/clean_genomes.py <organelle>
 ```
 
-<not finished>
-
+Note: Still under development. More details will be added soon.
