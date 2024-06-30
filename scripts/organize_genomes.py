@@ -2,6 +2,8 @@
 
 """
 Description:
+aka sort_genomes.py  
+
 This script organizes genome files based on taxonomic criteria provided in the lineage file 
 and the ID to species mapping file. It reads the lineage information and the ID to species 
 mapping, then organizes the genome files into directories based on genus, family, and order 
