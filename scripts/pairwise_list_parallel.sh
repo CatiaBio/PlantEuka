@@ -1,13 +1,24 @@
 #!/bin/bash
 
+# Check if the correct number of command-line arguments are provided
+if [ "$#" -ne 1 ]; then
+    echo "Usage: $0 <organelle>"
+    exit 1
+fi
+
+# Extract command-line arguments
+organelle="$1"
+
 # Define the base directory containing the taxonomy folders
-base_dir="$(pwd)/${organelle}/genomes/sorted" 
+base_dir="$(pwd)/${organelle}/genomes/sorted"
 
-# Define the directory where pair lists will be saved
-output_dir="$(pwd)/${organelle}/other/parallel"
+# Define the directories for the outputs and logs
+output_dir="$(pwd)/${organelle}/other/pairwise"
+final_output_dir="$(pwd)/${organelle}/other"
+results_dir="$(pwd)/${organelle}/results/pairwise/stretcher"
 
-# Ensure the output directory exists
-mkdir -p "$output_dir"
+# Ensure the output and results directories exist
+mkdir -p "$output_dir" "$results_dir"
 if [ ! -d "$output_dir" ]; then
     echo "Failed to create or access the output directory: $output_dir"
     exit 1
@@ -31,7 +42,6 @@ process_folders() {
         fi
 
         echo "Processing folder: $folder"
-        local output_file="${output_dir}/${taxonomy_level}_${folder_name}_pairs.txt"
         local list_file_path="${folder}/list_of_fasta_files.txt"
 
         # Generate a list of all fasta.gz files with full paths
@@ -48,16 +58,22 @@ process_folders() {
             files+=("$file")
         done
 
-        > "$output_file"  # Clear or create the output file
         for (( i=0; i<${#files[@]}; i++ )); do
             for (( j=i+1; j<${#files[@]}; j++ )); do
-                echo "${files[i]} ${files[j]}" >> "$output_file"
+                pair1="${files[i]}"
+                pair2="${files[j]}"
+                path_entry=(${pair1//\// })
+                taxonomy_genus=$(echo "${path_entry[6]}")
+                taxonomy_species=$(echo "${path_entry[7]}")
+                pair1_name=$(basename "${pair1}" .fasta.gz)
+                pair2_name=$(basename "${pair2}" .fasta.gz)
+                output_name="${results_dir}/${taxonomy_level}_${folder_name}_${pair1_name}_${pair2_name}.stretcher"
+                echo "$pair1 $pair2 $output_name" >> "${output_dir}/${taxonomy_level}_${folder_name}_pairs.txt"
             done
         done
 
         # Optionally remove the temporary list file
         rm "$list_file_path"
-        echo "Generated pairs list saved to $output_file"
     done
 }
 
@@ -65,3 +81,11 @@ process_folders() {
 for level in genus family order; do
     process_folders "$level"
 done
+
+# Concatenate all pair list files into one file
+cat ${output_dir}/*_pairs.txt > ${final_output_dir}/all_pairs_parallel.txt
+echo "All pair lists concatenated into ${final_output_dir}/all_pairs_parallel.txt"
+
+# Delete the intermediate pairwise directory
+rm -rf "$output_dir"
+echo "Intermediate pairwise directory deleted."
