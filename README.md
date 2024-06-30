@@ -25,6 +25,8 @@ Download taxonomy files, taxdump.tar.gz and nucl_gb.accession2taxid.gz from NCBI
 
 ```bash
 wget -bqc -P other https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump.tar.gz
+```
+```bash
 wget -bqc -P other https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/accession2taxid/nucl_gb.accession2taxid.gz
 ```
 
