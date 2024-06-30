@@ -1,12 +1,9 @@
 # Folders to ignore
-genomes/
-genes/
-logs/
+mitochondrion/
+chloroplast/
 other/
-other_scripts/
 results/
 .snakemake/
-tools/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
