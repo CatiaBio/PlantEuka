@@ -23,8 +23,8 @@ gene_name = "rbcL"
 output_folder = f"genes/{organelle}/{gene_name}"
 
 # Set your NCBI Entrez email and API key here
-Entrez.email = '***REMOVED***'
-Entrez.api_key = '***REMOVED***'
+Entrez.email = 'youremail@gmail.com'
+Entrez.api_key = 'NCBI_API_Key'
 
 def fetch_genome_info(id_list, database='nuccore'):
     """
