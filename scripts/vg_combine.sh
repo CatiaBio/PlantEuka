@@ -4,22 +4,21 @@
 base_dir=$(pwd)
 
 # Directory where the generated files are saved
-output_dir="${base_dir}/chloroplast/results/vg"
-circ_output_dir="${output_dir}/circ"
+circularize_dir="${base_dir}/chloroplast/results/vg/circularize"
+combine_output_dir="${base_dir}/chloroplast/results/vg/combine"
 
-# Ensure the output directories exist
-mkdir -p "$output_dir"
-mkdir -p "$circ_output_dir"
+# Ensure the output directory exists
+mkdir -p "$combine_output_dir"
 
 # Combine the generated rank_name_circ.vg files
-circ_files=($(ls ${circ_output_dir}/*_circ.vg))
+circ_files=($(ls ${circularize_dir}/*_circ.vg))
 combined_circ_files=$(printf " %s" "${circ_files[@]}")
-vg combine -c $combined_circ_files > "${output_dir}/combined_ranks_names.vg"
-vg snarls "${output_dir}/combined_ranks_names.vg" > "${output_dir}/combined_ranks_names.txt"
-vg view "${output_dir}/combined_ranks_names.vg" > "${output_dir}/combined_ranks_names.gfa"
-vg gbwt -o "${output_dir}/combined_ranks_names.gbwt" -g "${output_dir}/combined_ranks_names.gg" -G "${output_dir}/combined_ranks_names.gfa"
-vg index -j "${output_dir}/combined_ranks_names.dist" "${output_dir}/combined_ranks_names.vg"
-vg minimizer -g "${output_dir}/combined_ranks_names.gbwt" -o "${output_dir}/combined_ranks_names.min" -k 20 -w 10 "${output_dir}/combined_ranks_names.vg"
-vg convert -g "${output_dir}/combined_ranks_names.gfa" -o > "${output_dir}/combined_ranks_names.og"
+vg combine -c $combined_circ_files > "${combine_output_dir}/planteuka_db.vg"
+vg snarls "${combine_output_dir}/planteuka_db.vg" > "${combine_output_dir}/planteuka_db.txt"
+vg view "${combine_output_dir}/planteuka_db.vg" > "${combine_output_dir}/planteuka_db.gfa"
+vg gbwt -o "${combine_output_dir}/planteuka_db.gbwt" -g "${combine_output_dir}/planteuka_db.gg" -G "${combine_output_dir}/planteuka_db.gfa"
+vg index -j "${combine_output_dir}/planteuka_db.dist" "${combine_output_dir}/planteuka_db.vg"
+vg minimizer -g "${combine_output_dir}/planteuka_db.gbwt" -o "${combine_output_dir}/planteuka_db.min" -k 20 -w 10 "${combine_output_dir}/planteuka_db.vg"
+vg convert -g "${combine_output_dir}/planteuka_db.gfa" -o > "${combine_output_dir}/planteuka_db.og"
 
 echo "Combination of files and further processing completed successfully."
