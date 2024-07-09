@@ -6,7 +6,7 @@ The **PlantEuka** project aims to develop a customized plant database module for
 
 The primary goal of this project is to enhance our understanding of plant biodiversity and their interactions in various environments. These improvements will allow **Euka** to provide more reliable data for ecological and biological research.
 
-## How to Use the PlantEka
+## How to Use the PlantEuka
 
 Download the repository and follow the steps. Ensure all scripts are executed from the main directory of PlantEuka.
 
