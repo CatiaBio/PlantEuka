@@ -79,9 +79,9 @@ stretcher -asequence <seq1>.fasta -bsequence <seq2>.fasta -gapopen 16 -gapextend
 
 ### Gathering the data and filtering the results
 
-## pairwise_results.py gathers the results from the pairwise alignment into a single .tsv file.
+#### pairwise_results.py gathers the results from the pairwise alignment into a single .tsv file.
 
-## pairwise_filter.py selects the sequences to analyse further using specific criteria:
+#### pairwise_filter.py selects the sequences to analyse further using specific criteria:
 
 Similarity > 99% -> One of the pairs is discarded (removes duplicates) 
 50% > Similarity > 90%
@@ -90,7 +90,7 @@ Score > MaxScore/2 (MaxScore represents the highest score found per group)
 
 ### Using MAFFT for the MSAs
 
-## merge_genomes.py is used to merge, per group, the individual sequences for use with the tool MAFFT. 
+#### merge_genomes.py is used to merge, per group, the individual sequences for use with the tool MAFFT. 
 
 **Usage:** 
 ```bash
