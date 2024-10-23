@@ -10,81 +10,82 @@ scripts = {
 }
 
 
-# Define paths for tools
-tools = {"stretcher": "/home/ctools/EMBOSS-6.6.0/emboss/stretcher",
-    "mafft": "/home/ctools/Mafft/bin/mafft",
-    "fasttree": "/home/ctools/FastTree/FastTree",
-    "vg": "/home/ctools/vg_1.44.0/bin/vg"
-}
-
 rule all:
     input: 
-        "data/combined_sequences_cp.mapping",
-        "data/combined_sequences_mt.mapping"
+        "other/taxonomy.tsv",
+        "other/lineage.tsv",
+        "other/accession_taxid.txt"
 
 rule download_taxdump_accession2taxid:
     output: 
-        directory=directory("other")
+        "other/taxdump.tar.gz",
+        "other/nucl_gb.accession2taxid.gz"
     shell: 
         """ 
         wget -bqc -P other https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump.tar.gz 
         wget -bqc -P other https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/accession2taxid/nucl_gb.accession2taxid.gz
         """
-    
-rule download_cp_genomes:
-    params:
-        organelle = "chloroplast"
-    shell: 
-        """
-        python {scripts[download_genomes]} \
-        {params.organelle} 
-        """ 
 
-rule download_mt_genomes:
-    params:
-        organelle = "mitochondrion"
-    shell: 
+rule unpack_taxdump:
+    input:
+        "other/taxdump.tar.gz"
+    output:
+        "other/nodes.dmp",
+        "other/names.dmp"
+    shell:
         """
-        python {scripts[download_genomes]} \
-        {params.organelle} 
-        """ 
+        tar -zxvf {input} -C other nodes.dmp names.dmp
+        """
 
 rule generate_lineage_taxonomy:
+    input:
+        "other/nodes.dmp",
+        "other/names.dmp"
+    output:
+        "other/taxonomy.tsv",
+        "other/lineage.tsv"
     shell:
         """
         python {scripts[taxonomy_lineage]} 
         """ 
 
+rule download_cp_genomes:
+    params:
+        email = "catiacarmobatista@gmail.com",
+        api_key = "09a80c0d55826098773b6a9e63c0514f5508"
+    output:
+        "other/accessions.txt"
+    shell: 
+        """
+        python {scripts[download_genomes]} {params.email} {params.api_key}        
+        """ 
+
 rule generate_accession_taxid:
+    input:
+        "other/nucl_gb.accession2taxid.gz",
+        "other/accessions.txt"
+    output:
+        "other/accession_taxid.txt"
     shell:
         """
         python {scripts[accession_taxid]} 
         """ 
 
      
-rule sort_mt_genomes:
-    params:
-        organelle = "mitochondrion"
-    shell: 
-        """
-        python {scripts[sort]} \
-        {params.organelle} 
-        """
+# rule sort_cp_genomes:
+#     params:
+#         organelle = "chloroplast"
+#     shell:
+#     """
+#         python {scripts[sort]} \
+#         {params.organelle} 
+#         """
 
-rule sort_cp_genomes:
-    params:
-        organelle = "chloroplast"
-    shell:
-    """
-        python {scripts[sort]} \
-        {params.organelle} 
-        """
-
-rule clean_genomes:
-    input:
-    output:
-    shell: 
-        """
-        python {scripts[clean]} 
-        """
+# rule clean_genomes:
+#     input:
+#     output:
+#     shell: 
+#         """
+#         python {scripts[clean]} 
+#         """
 
