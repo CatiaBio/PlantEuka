@@ -7,9 +7,7 @@ It retrieves genome records matching the specified search query, saves the seque
 and generates a file listing the accession numbers of the downloaded genomes.
 
 Usage:
-python3 download_genomes.py chloroplast
-python3 download_genomes.py mitochondrion
-
+python3 download_genomes.py 
 """
 
 # Libraries
@@ -19,19 +17,19 @@ import sys
 import gzip
 
 # Check if the correct number of command-line arguments are provided
-if len(sys.argv) != 2:
-    print("Usage: python3 download_genomes.py <organelle>")
+if len(sys.argv) != 3:
+    print("Usage: python3 download_genomes.py <email> <api_key>")
     sys.exit(1)
 
 # Extract command-line arguments
-organelle = sys.argv[1]
+organelle = "chloroplast"
 query = f"plants[filter] AND refseq[filter] AND {organelle}[filter] AND complete genome[Title]"                 
 accession_version_file = f"{organelle}/other/accessions.txt"                
 output_directory = f"{organelle}/genomes/original"              
 
 # Set your NCBI Entrez email and API key here
-Entrez.email = 'youremail@gmail.com'
-Entrez.api_key = 'NCBI_API_Key'
+Entrez.email = sys.argv[1]
+Entrez.api_key = sys.argv[2]
 
 def search_genomes(search_term, database='nuccore'):
     """

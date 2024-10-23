@@ -18,17 +18,17 @@ import os
 import shutil
 import sys
 
-# Check if the correct number of command-line arguments are provided
-if len(sys.argv) != 2:
-    print("Usage: python3 scripts/sort_genomes.py <organelle>")
-    sys.exit(1)
+# # Check if the correct number of command-line arguments are provided
+# if len(sys.argv) != 2:
+#     print("Usage: python3 scripts/sort_genomes.py <organelle>")
+#     sys.exit(1)
 
 # Extract command-line arguments
-organelle = sys.argv[1]
+organelle = "chloroplast"
 
 lineage_file_path = "other/lineage.tsv"
 accession_taxid = f"{organelle}/other/accession.txt"
-input_directory = f"{organelle}/genomes//original"
+input_directory = f"{organelle}/genomes/original"
 output_base_dir = f"{organelle}/genomes/sorted"
 sorted_list_path = f"{organelle}/other/sorted_accessions.txt"
 unsorted_list_path = f"{organelle}/other/unsorted_accessions.txt"
