@@ -1,0 +1,8 @@
+name: planteuka
+dependencies:
+  - python=3.9.1
+  - conda-forge::pandas
+  - conda-forge::biopython
+  - bioconda::mafft=7.505
+  - bioconda::vg=1.44.0
+  - bioconda::emboss=6.6.0
