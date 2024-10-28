@@ -5,7 +5,7 @@ chloroplast/
 other/
 results/
 .snakemake/
-ncbi_info.txt/
+ncbi_info.txt
 genomes/original
 
 # Byte-compiled / optimized / DLL files
