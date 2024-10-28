@@ -24,16 +24,16 @@ taxonomy_output_file = "other/taxonomy.tsv"
 lineage_output_file = "other/lineage.tsv"
 
 # Path to the tar.gz file
-tar_file = "other/taxdump.tar.gz"
+#tar_file = "other/taxdump.tar.gz"
 
-# Extract the required files from the tar.gz archive
-print("Extracting nodes.dmp and names.dmp from taxdump.tar.gz...")
-subprocess.run(["tar", "-zxvf", tar_file, "-C", "other", "nodes.dmp", "names.dmp"], check=True)
+# # Extract the required files from the tar.gz archive
+# print("Extracting nodes.dmp and names.dmp from taxdump.tar.gz...")
+# subprocess.run(["tar", "-zxvf", tar_file, "-C", "other", "nodes.dmp", "names.dmp"], check=True)
 
-# Check if the files exist after extraction
-if not os.path.isfile(nodes_file) or not os.path.isfile(names_file):
-    print("Error: nodes.dmp or names.dmp not found after extraction.")
-    sys.exit(1)
+# # Check if the files exist after extraction
+# if not os.path.isfile(nodes_file) or not os.path.isfile(names_file):
+#     print("Error: nodes.dmp or names.dmp not found after extraction.")
+#     sys.exit(1)
 
 # Create dictionaries from names and nodes file
 name_dict = {}  # stores scientific names of taxa
