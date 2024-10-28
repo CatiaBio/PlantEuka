@@ -1,15 +1,3 @@
-# Define paths to Python scripts
-scripts = {
-    "accession_taxid": "scripts/accession_taxid.sh",
-    "taxonomy_lineage": "scripts/taxonomy_lineage.py",
-    "download_genomes": "scripts/download_genomes.py",
-    "sort": "scripts/sort_genomes.py",
-    "clean": "scripts/clean_genomes.py",
-    "pw_list": "pw_list_parallel.sh",
-    "merge": "scripts/merge_genomes.sh"
-}
-
-
 rule all:
     input: 
         "other/taxonomy.tsv",
@@ -44,21 +32,28 @@ rule generate_lineage_taxonomy:
     output:
         "other/taxonomy.tsv",
         "other/lineage.tsv"
-    shell:
-        """
-        python {scripts[taxonomy_lineage]} 
-        """ 
+    script:
+        "scripts/taxonomy_lineage.py"
 
-rule download_cp_genomes:
-    params:
-        email = "catiacarmobatista@gmail.com",
-        api_key = "09a80c0d55826098773b6a9e63c0514f5508"
+rule get_accession_list:
+    input:
+        "ncbi_info.txt"
     output:
         "other/accessions.txt"
-    shell: 
-        """
-        python {scripts[download_genomes]} {params.email} {params.api_key}        
-        """ 
+    script:
+        "scripts/get_accession_list.py"
+
+rule download_genomes:
+    input:
+        ncbi_info="ncbi_info.txt",
+        accession_list="other/accessions.txt"
+    output:
+        genomes_dir=directory("genomes/original"),  # Directory where genomes will be saved
+        updated_downloaded_list="downloaded_accessions_list.txt"  # Updated file after downloading new accessions
+    params:
+        genomes_dir="genomes/original"  # Specify the directory for genomes explicitly if needed
+    script:
+        "scripts/download_genomes_.py"
 
 rule generate_accession_taxid:
     input:
@@ -67,9 +62,7 @@ rule generate_accession_taxid:
     output:
         "other/accession_taxid.txt"
     shell:
-        """
-        python {scripts[accession_taxid]} 
-        """ 
+        "scripts/accession_taxid.sh"
 
      
 # rule sort_cp_genomes:
