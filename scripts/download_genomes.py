@@ -7,31 +7,35 @@ It retrieves genome records matching the specified search query, saves the seque
 and generates a file listing the accession numbers of the downloaded genomes.
 
 Usage:
-python3 download_genomes.py chloroplast
-python3 download_genomes.py mitochondrion
-
+python3 download_genomes.py 
 """
 
 # Libraries
 from Bio import Entrez, SeqIO
+from snakemake import snakemake
 import os
 import sys
 import gzip
 
-# Check if the correct number of command-line arguments are provided
-if len(sys.argv) != 2:
-    print("Usage: python3 download_genomes.py <organelle>")
-    sys.exit(1)
+# Access the file paths from Snakemake's input and output
+input_file = snakemake.input.config  
+output_file = snakemake.output[0]    
+
+with open(ncbi_info, "r") as info:
+        get_info = info.readlines()
+        email = get_info[0].strip()
+        api_key = get_info[1].strip()
 
 # Extract command-line arguments
-organelle = sys.argv[1]
+accession_version_file = output_file
+organelle = "chloroplast"
 query = f"plants[filter] AND refseq[filter] AND {organelle}[filter] AND complete genome[Title]"                 
-accession_version_file = f"{organelle}/other/accessions.txt"                
+accession_version_file = f"{organelle}/{output_file}"                
 output_directory = f"{organelle}/genomes/original"              
 
 # Set your NCBI Entrez email and API key here
-Entrez.email = 'youremail@gmail.com'
-Entrez.api_key = 'NCBI_API_Key'
+Entrez.email = email
+Entrez.api_key = api_key
 
 def search_genomes(search_term, database='nuccore'):
     """
