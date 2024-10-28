@@ -12,24 +12,30 @@ python3 download_genomes.py
 
 # Libraries
 from Bio import Entrez, SeqIO
+from snakemake import snakemake
 import os
 import sys
 import gzip
 
-# Check if the correct number of command-line arguments are provided
-if len(sys.argv) != 3:
-    print("Usage: python3 download_genomes.py <email> <api_key>")
-    sys.exit(1)
+# Access the file paths from Snakemake's input and output
+input_file = snakemake.input.config  
+output_file = snakemake.output[0]    
+
+with open(ncbi_info, "r") as info:
+        get_info = info.readlines()
+        email = get_info[0].strip()
+        api_key = get_info[1].strip()
 
 # Extract command-line arguments
+accession_version_file = output_file
 organelle = "chloroplast"
 query = f"plants[filter] AND refseq[filter] AND {organelle}[filter] AND complete genome[Title]"                 
-accession_version_file = f"{organelle}/other/accessions.txt"                
+accession_version_file = f"{organelle}/{output_file}"                
 output_directory = f"{organelle}/genomes/original"              
 
 # Set your NCBI Entrez email and API key here
-Entrez.email = sys.argv[1]
-Entrez.api_key = sys.argv[2]
+Entrez.email = email
+Entrez.api_key = api_key
 
 def search_genomes(search_term, database='nuccore'):
     """
