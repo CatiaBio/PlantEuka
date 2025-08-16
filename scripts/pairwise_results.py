@@ -5,17 +5,15 @@ import os
 import gzip
 import re
 
-# Directory containing the files
-#directory = 'results/mitochondrion/pairwise'
-directory = 'results/pairwise_cp'
-
-
-# Output TSV file
-#output_file = 'results/mitochondrion/pairwise_results_mt.tsv'
-output_file = 'results/chloroplast/pairwise_results_cp.tsv'
+# For Snakemake compatibility
+directory = snakemake.input.results_dir
+output_file = snakemake.output.results_file
 
 # Header for the TSV file
-header = 'Rank\tName\tpair1\tpair2\tLength\tIdentity\tSimilarity\tGaps\tScore\n'
+header = 'rank\tname\tpair1\tpair2\tlength\tidentity\tsimilarity\tgaps\tscore\n'
+
+# Ensure output directory exists
+os.makedirs(os.path.dirname(output_file), exist_ok=True)
 
 # Open the output file and write the header
 with open(output_file, 'w') as outfile:

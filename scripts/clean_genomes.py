@@ -16,20 +16,17 @@ import sys
 from collections import Counter
 import shutil
 
-# Check if the correct number of command-line arguments are provided
-if len(sys.argv) != 2:
-    print("Usage: python3 clean_genomes.py <organelle>")
-    sys.exit(1)
-
-# Extract command-line arguments
-organelle = sys.argv[1]
+# For Snakemake compatibility
+organelle = snakemake.params.organelle
 base_dir = f"{organelle}/genomes/sorted"
-log_file_name = f"{organelle}/other/genome_cleanup.log"
+log_file_name = snakemake.output.log_file
 results_dir = "results"
 changes_log_path = os.path.join(results_dir, f"cleanup_{organelle}.tsv")
 
 # Ensure the results directory exists
 os.makedirs(results_dir, exist_ok=True)
+# Ensure the output directory exists
+os.makedirs(os.path.dirname(log_file_name), exist_ok=True)
 
 def clean_fasta(fasta_path):
     """
