@@ -1,110 +1,241 @@
 # PlantEuka 🌱🌿🌻
 
-**PlantEuka** is an extension of **Euka**, developed by Nicola et al. (https://doi.org/10.1111/2041-210X.14214), which uses a taxon-based pangenome graph for analyzing ancient environmental DNA (aeDNA). While **Euka** has shown great potential, it is limited to tetrapod and arthropod mitochondrial genomes (mitogenomes).
+**PlantEuka** is an extension of **Euka** ([Nicola et al., 2023](https://doi.org/10.1111/2041-210X.14214)), which uses a taxon-based pangenome graph for analyzing ancient environmental DNA (aeDNA). While **Euka** has shown great potential, it is limited to tetrapod and arthropod mitochondrial genomes (mitogenomes).
 
 The **PlantEuka** project aims to develop a customized plant database module for **Euka**. This enhancement will improve the accuracy and representation of plant species, enabling the identification of plant species using a taxon-based pangenome graph.
 
-The primary goal of this project is to enhance our understanding of plant biodiversity and their interactions in various environments. These improvements will allow **Euka** to provide more reliable data for ecological and biological research.
+## 🎯 Project Goals
 
-## How to Use the PlantEuka
+- **Enhance plant biodiversity understanding** in various environments
+- **Improve species identification accuracy** using taxon-based pangenome graphs
+- **Extend Euka's capabilities** to include comprehensive plant genomic data
+- **Provide reliable data** for ecological and biological research
 
-Download the repository and follow the steps. Ensure all scripts are executed from the main directory of PlantEuka.
+## 📋 Prerequisites
 
-### download_genomes.py
+Before running PlantEuka, ensure you have the following dependencies installed:
 
-Connect with NCBI’s GenBank database, search and retrieve sequences matching the specified query string.
+### Required Software
+- **Python 3.7+** with packages: `pandas`, `biopython`, `collections`
+- **Snakemake 6.0+** for workflow management
+- **EMBOSS** suite (specifically `stretcher` tool)
+- **MAFFT** for multiple sequence alignment
+- **wget** for downloading NCBI data
+- **Standard Unix tools**: `bash`, `gzip`, `tar`
+
+### Installation
 ```bash
-scripts/download_genomes.py <organelle>
+# Install conda dependencies
+conda install -c conda-forge snakemake pandas biopython
+conda install -c bioconda emboss mafft
+
+# Or using pip for Python packages
+pip install pandas biopython snakemake
 ```
 
-### Taxonomy files 
+## 🚀 Quick Start
 
-Download taxonomy files, taxdump.tar.gz and nucl_gb.accession2taxid.gz from NCBI's FTP repository. 
+### Option 1: Automated Workflow (Recommended)
 ```bash
+# Clone the repository
+git clone <repository-url>
+cd PlantEuka
+
+# Run the complete workflow using Snakemake
+snakemake --cores 4
+
+# For dry run (check workflow without execution)
+snakemake --dry-run
+```
+
+### Option 2: Manual Step-by-Step Execution
+Follow the [Manual Workflow](#manual-workflow) section below.
+
+## 📊 Workflow Overview
+
+```mermaid
+graph TD
+    A[Download NCBI Data] --> B[Process Taxonomy]
+    B --> C[Download Genomes]
+    C --> D[Sort by Taxonomy]
+    D --> E[Clean Sequences]
+    E --> F[Pairwise Alignments]
+    F --> G[Filter Results]
+    G --> H[Merge Sequences]
+    H --> I[Multiple Sequence Alignment]
+    I --> J[Pangenome Graph Construction*]
+    
+    style J fill:#ffeb3b,stroke:#f57f17,color:#000
+```
+*\*Currently under development*
+
+## 🔧 Automated Workflow (Snakemake)
+
+The entire PlantEuka pipeline is automated using Snakemake. The workflow includes:
+
+1. **Data Download**: NCBI taxonomy and accession data
+2. **Genome Processing**: Download, sort, and clean genomic sequences
+3. **Quality Control**: Pairwise alignment and filtering
+4. **Sequence Analysis**: Multiple sequence alignment preparation
+
+### Configuration
+Edit `ncbi_info.txt` to specify your search parameters before running.
+
+### Execution
+```bash
+# Run with 4 CPU cores
+snakemake --cores 4
+
+# Run specific rule
+snakemake <rule_name> --cores 4
+
+# Generate workflow visualization
+snakemake --dag | dot -Tpng > workflow.png
+```
+
+## 📚 Manual Workflow
+
+If you prefer to run steps manually or need to customize the workflow:
+
+### Step 1: Download NCBI Data
+Download taxonomy files and genome accession mappings:
+```bash
+# Download taxonomy files
 wget -bqc -P other https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump.tar.gz
-```
-```bash
 wget -bqc -P other https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/accession2taxid/nucl_gb.accession2taxid.gz
+
+# Extract taxonomy data
+tar -zxvf other/taxdump.tar.gz -C other nodes.dmp names.dmp
 ```
 
-### accession_taxid.sh
-
-Match downloaded accession numbers with their corresponding taxon IDs (taxids) using files from the NCBI database.
-```bash
-scripts/accession_taxid.sh
-```
-
-
-### taxonomy_lineage.py
-
-Extract taxonomy and lineage information from `nodes.dmp` and `names.dmp` files, creating `taxonomy.tsv` and `lineage.tsv`.
+### Step 2: Process Taxonomy Information
+Generate taxonomy and lineage information:
 ```bash
 scripts/taxonomy_lineage.py
 ```
+Creates `taxonomy.tsv` and `lineage.tsv` from NCBI taxonomy files.
 
-### sort_genomes.py
-
-Organize genomic data into directories by taxonomic rank (genus, family, order), creating lists of sorted and unsorted accession numbers.
+### Step 3: Download Genomes
+Connect with NCBI's GenBank database and retrieve sequences:
 ```bash
-scripts/sort_genomes.py <organelle>
+scripts/download_genomes.py <organelle>
 ```
+Downloads genomes matching the query in `ncbi_info.txt`.
 
-### clean_genomes.py
+### Step 4: Map Accessions to Taxonomy
+```bash
+scripts/accession_taxid.sh
+```
+Matches downloaded accession numbers with their taxonomic IDs.
 
-Scan genomic sequences for non-standard characters and replaces them with a standard ’N’ for unknown nucleotides.
+### Step 5: Organize Genomes by Taxonomy
+```bash
+scripts/organize_genomes.py <organelle>
+```
+Sorts genomes into taxonomic directories (genus, family, order) with ≥10 species per group.
+
+### Step 6: Clean Genome Sequences
 ```bash
 scripts/clean_genomes.py <organelle>
 ```
+Replaces non-standard nucleotide characters with 'N' and logs changes.
 
-### Use EMBOSS Stretcher for pairwise alignment. The aim is to filter unwanted pairs and duplicates.
-
-Create a list with all the possible pairs within a group.
+### Step 7: Pairwise Sequence Alignment
+Generate pairwise alignment lists and run EMBOSS stretcher:
 ```bash
-pairwise_list_parallel.sh
+# Generate all possible pairs within taxonomic groups
+scripts/pairwise_list_parallel.sh <organelle>
+
+# Run pairwise alignments (example for single pair)
+stretcher -asequence seq1.fasta -bsequence seq2.fasta -gapopen 16 -gapextend 4 -outfile pair.stretcher
 ```
 
-Run each pair from the list with stretcher. 
+### Step 8: Process and Filter Alignment Results
 ```bash
-tools/stretcher -asequence <seq1>.fasta -bsequence <seq2>.fasta -gapopen 16 -gapextend 4 -outfile <seq1_seq2_pair>.stretcher 
+# Gather results into single TSV file
+scripts/pairwise_results.py
+
+# Apply quality filters
+scripts/pairwise_filter.py
 ```
 
-### Gather and filter results
+**Quality Control Criteria:**
+- **Similarity > 99%**: Remove duplicates (keep one sequence)
+- **50% < Similarity < 90%**: Keep for analysis
+- **Gaps < 15%**: Ensure good alignment quality
+- **Score > MaxScore/2**: Keep high-quality alignments only
 
-Gather the results from the pairwise alignment into a single .tsv file.
+### Step 9: Multiple Sequence Alignment
 ```bash
-scripts/pairwise_results.py  
+# Merge sequences per taxonomic group
+scripts/merge_genomes.sh <sorted_directory> <merged_directory>
+
+# Generate MAFFT input/output paths
+scripts/msa_paths_parallel.py
+
+# Run MAFFT alignments
+mafft --auto --thread -1 merged_sequences.fasta > alignment.fasta
 ```
 
-Filter the sequences using specific criteria.
-```bash
-scripts/pairwise_filter.py 
+## 📁 Output Structure
+
+```
+PlantEuka/
+├── other/                          # Taxonomy and metadata
+│   ├── taxonomy.tsv
+│   ├── lineage.tsv
+│   └── accession_taxid.txt
+├── chloroplast/
+│   ├── genomes/
+│   │   ├── sorted/                 # Organized by taxonomy
+│   │   └── merged/                 # Merged for MSA
+│   ├── results/
+│   │   ├── pairwise/              # Alignment results
+│   │   └── msa/                   # Multiple sequence alignments
+│   └── other/                     # Logs and metadata
+└── scripts/                       # Pipeline scripts
 ```
 
-**Criteria**
+## 🔍 Quality Metrics
 
-Similarity > 99% -> One of the pairs is discarded (removes duplicates) 
+The pipeline provides comprehensive quality control:
 
-50% > Similarity > 90%
+- **Taxonomic Coverage**: Minimum 10 species per taxonomic group
+- **Sequence Quality**: Non-standard nucleotides cleaned
+- **Alignment Quality**: Pairwise similarity and gap content filtering
+- **Duplicate Removal**: >99% similar sequences deduplicated
+- **Logging**: Detailed logs for each processing step
 
-Gaps < 15%
+## 🧬 Future Development
 
-Score > MaxScore/2 (MaxScore represents the highest score found per group)
+### Pangenome Graph Construction
+Currently under development. The next phase will include:
+- Graph-based representation of sequence variation
+- Variant calling and annotation
+- Integration with Euka framework
+- Species identification algorithms
 
-### MAFFT for multiple sequence alignment
+## 🤝 Contributing
 
-Merge, per group, the individual sequences for the MSA with MAFFT.
-```bash
-scripts/merge_genomes.py 
-```
+Contributions are welcome! Please:
+1. Fork the repository
+2. Create a feature branch
+3. Submit a pull request with detailed description
 
-Run MAFFT. 
-```bash
-tools/mafft --auto --thread -1 <merged_sequences>.fasta > <alignment>.fasta
-```
+## 📝 Citation
 
-### Construct a Pangenome Graph 
+If you use PlantEuka in your research, please cite:
+- **Euka**: Nicola et al. (2023). DOI: [10.1111/2041-210X.14214](https://doi.org/10.1111/2041-210X.14214)
+- **PlantEuka**: [Citation pending publication]
 
+## 📧 Support
 
-Note: Still under development. More details will be added soon.
+For questions, issues, or suggestions:
+- Open an issue on GitHub
+- Contact the development team
+
+## 📄 License
+
+[Add appropriate license information]
 
 

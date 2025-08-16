@@ -1,5 +1,6 @@
 import pandas as pd
 import sys
+import os
 from collections import Counter
 
 # General Description:
@@ -8,17 +9,30 @@ from collections import Counter
 # to keep, removes duplicates, and counts the unique accessions before and after 
 # filtering. The final results are saved to an output file.
 
-# Check if the correct number of command-line arguments are provided
-if len(sys.argv) != 2:
-    print("Usage: python3 clean_genomes.py <organelle>")
-    sys.exit(1)
-
-# Extract command-line arguments
-organelle = sys.argv[1]
+# For Snakemake compatibility
+file_path = snakemake.input.results_file
+output_path = snakemake.output.filtered_file
+organelle = snakemake.params.organelle
 
 # Read the TSV file into a DataFrame
-file_path = f'{organelle}/results/pairwise/pairwise_results.tsv'  
 df = pd.read_csv(file_path, sep='\t')
+
+# Remove duplicate pairs globally (considering both directions of pairs)
+def normalize_pair(row):
+    """Normalize pairs so (A,B) and (B,A) are treated as the same pair"""
+    pair1, pair2 = row['pair1'], row['pair2']
+    return tuple(sorted([pair1, pair2]))
+
+# Add normalized pair column for deduplication
+df['normalized_pair'] = df.apply(normalize_pair, axis=1)
+
+# Remove duplicate pairs globally (keeping the first occurrence)
+df = df.drop_duplicates(subset=['normalized_pair'], keep='first')
+
+# Remove the temporary column
+df = df.drop('normalized_pair', axis=1)
+
+print(f"After deduplication: {len(df)} unique pairs remaining")
 
 # Function to process pairs based on conditions
 def process_pairs(df):
@@ -49,7 +63,7 @@ def process_pairs(df):
             pair = (row['pair1'], row['pair2'])
             if row['similarity'] > 99:
                 equal_pairs.append(pair)
-            elif (50 <= row['similarity'] <= 99) and (row['gaps'] < 15) and (row['score'] >= threshold_score):
+            elif (50 < row['similarity'] < 90) and (row['gaps'] < 15) and (row['score'] >= threshold_score):
                 pairs_to_keep.append(pair)
             else:
                 pairs_to_discard.append(pair)
@@ -97,23 +111,8 @@ def get_unique_accessions(processed_pairs):
         for pair in lists['pairs_to_keep']:
             accessions_to_keep.update(pair)
         
-        # Count occurrences of accessions in pairs_to_discard
-        discard_pairs = [acc for pair in lists['pairs_to_discard'] for acc in pair]
-        accession_counts = Counter(discard_pairs)
-        
-        # Exclude accessions that are part of pairs with gaps > 15
-        accessions_to_exclude = set()
-        for pair in lists['pairs_to_discard']:
-            accessions_to_exclude.update(pair)
-        
-        # Determine which accession to remove based on count in discard_pairs
-        for pair in lists['pairs_to_discard']:
-            pair1, pair2 = pair
-            if pair1 in accessions_to_keep and pair2 in accessions_to_keep:
-                if accession_counts[pair1] > accession_counts[pair2]:
-                    accessions_to_keep.remove(pair1)
-                else:
-                    accessions_to_keep.remove(pair2)
+        # Note: pairs_to_discard are already excluded from accessions_to_keep
+        # as they are only collected from pairs_to_keep initially
         
         # Count unique accessions before filtering
         unique_accessions_before = set()
@@ -129,12 +128,15 @@ def get_unique_accessions(processed_pairs):
         sorted_equal_pairs = sorted(lists['equal_pairs'], key=lambda x: x[0])
         
         # Iterate through equal_pairs to filter out duplicates
+        # Remove the lexicographically larger accession ID to maintain consistency
         for pair in sorted_equal_pairs:
             pair1, pair2 = pair
             if pair1 in accessions_to_keep and pair2 in accessions_to_keep:
-                accessions_to_keep.remove(pair2)
-            elif pair2 in accessions_to_keep and pair1 in accessions_to_keep:
-                accessions_to_keep.remove(pair1)
+                # Remove the lexicographically larger accession to maintain consistency
+                if pair1 > pair2:
+                    accessions_to_keep.remove(pair1)
+                else:
+                    accessions_to_keep.remove(pair2)
         
         count_after = len(accessions_to_keep)
         counts[rank_name] = (count_before, count_after)
@@ -151,11 +153,10 @@ def get_unique_accessions(processed_pairs):
 processed_pairs = process_pairs(df)
 unique_accessions, counts, original_counts, discarded_accessions = get_unique_accessions(processed_pairs)
 
-# Save the result to a file in the same directory
-output_dir = f'{organelle}/other'
-output_file = f'{output_dir}/filtered_accessions.txt'
+# Save the result to a file 
+os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
-with open(output_file, 'w') as f:
+with open(output_path, 'w') as f:
     for rank_name, accessions in unique_accessions.items():
         count_before, count_after = counts[rank_name]
         f.write(f'{rank_name} bf {count_before} af {count_after}\n')
@@ -165,4 +166,4 @@ with open(output_file, 'w') as f:
         for discarded in sorted(discarded_accessions[rank_name]):
             f.write(f'{discarded}\n')
 
-print(f'Results saved to {output_file}')
+print(f'Results saved to {output_path}')
